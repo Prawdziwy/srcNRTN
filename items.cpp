@@ -147,6 +147,7 @@ const std::unordered_map<std::string, ItemParseAttributes_t> ItemParseAttributes
 	{"walkstack", ITEM_PARSE_WALKSTACK},
 	{"blocking", ITEM_PARSE_BLOCKING},
 	{"allowdistread", ITEM_PARSE_ALLOWDISTREAD},
+	{"dontblockwalk", ITEM_PARSE_DONTBLOCKWALK},
 };
 
 
@@ -763,6 +764,8 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 						it.weaponType = WEAPON_WAND;
 					} else if (!tfs_strcmp(tmpStrValue.c_str(), "ammunition")) {
 						it.weaponType = WEAPON_AMMO;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "fist")) {
+						it.weaponType = WEAPON_FIST;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown weaponType: " << valueAttribute.as_string() << std::endl;
 					}
@@ -1331,6 +1334,11 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_ALLOWDISTREAD: {
 					it.allowDistRead = booleanString(valueAttribute.as_string());
+					break;
+				}
+				
+				case ITEM_PARSE_DONTBLOCKWALK: {
+					it.dontBlockWalk = valueAttribute.as_bool();
 					break;
 				}
 

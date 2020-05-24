@@ -166,6 +166,7 @@ enum ItemParseAttributes_t {
 	ITEM_PARSE_WALKSTACK,
 	ITEM_PARSE_BLOCKING,
 	ITEM_PARSE_ALLOWDISTREAD,
+	ITEM_PARSE_DONTBLOCKWALK,
 };
 
 struct Abilities {
@@ -375,6 +376,7 @@ class ItemType
 		bool isHorizontal = false;
 		bool isHangable = false;
 		bool allowDistRead = false;
+		bool dontBlockWalk = false;
 		bool lookThrough = false;
 		bool stopTime = false;
 		bool showCount = true;
