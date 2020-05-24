@@ -427,20 +427,20 @@ uint32_t MoveEvents::onCreatureMove(Creature* creature, const Tile* tile, MoveEv
 	return ret;
 }
 
-ReturnValue MoveEvents::onPlayerEquip(Player* player, Item* item, slots_t slot, bool isCheck)
+uint32_t MoveEvents::onPlayerEquip(Player* player, Item* item, slots_t slot, bool isCheck)
 {
 	MoveEvent* moveEvent = getEvent(item, MOVE_EVENT_EQUIP, slot);
 	if (!moveEvent) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 	return moveEvent->fireEquip(player, item, slot, isCheck);
 }
 
-ReturnValue MoveEvents::onPlayerDeEquip(Player* player, Item* item, slots_t slot)
+uint32_t MoveEvents::onPlayerDeEquip(Player* player, Item* item, slots_t slot)
 {
 	MoveEvent* moveEvent = getEvent(item, MOVE_EVENT_DEEQUIP, slot);
 	if (!moveEvent) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 	return moveEvent->fireEquip(player, item, slot, false);
 }
@@ -512,17 +512,17 @@ bool MoveEvent::configureEvent(const pugi::xml_node& node)
 	}
 
 	std::string tmpStr = asLowerCaseString(eventAttr.as_string());
-	if (tmpStr == "stepin") {
+	if (!tfs_strcmp(tmpStr.c_str(), "stepin")) {
 		eventType = MOVE_EVENT_STEP_IN;
-	} else if (tmpStr == "stepout") {
+	} else if (!tfs_strcmp(tmpStr.c_str(), "stepout")) {
 		eventType = MOVE_EVENT_STEP_OUT;
-	} else if (tmpStr == "equip") {
+	} else if (!tfs_strcmp(tmpStr.c_str(), "equip")) {
 		eventType = MOVE_EVENT_EQUIP;
-	} else if (tmpStr == "deequip") {
+	} else if (!tfs_strcmp(tmpStr.c_str(), "deequip")) {
 		eventType = MOVE_EVENT_DEEQUIP;
-	} else if (tmpStr == "additem") {
+	} else if (!tfs_strcmp(tmpStr.c_str(), "additem")) {
 		eventType = MOVE_EVENT_ADD_ITEM;
-	} else if (tmpStr == "removeitem") {
+	} else if (!tfs_strcmp(tmpStr.c_str(), "removeitem")) {
 		eventType = MOVE_EVENT_REMOVE_ITEM;
 	} else {
 		std::cout << "Error: [MoveEvent::configureMoveEvent] No valid event name " << eventAttr.as_string() << std::endl;
@@ -533,27 +533,27 @@ bool MoveEvent::configureEvent(const pugi::xml_node& node)
 		pugi::xml_attribute slotAttribute = node.attribute("slot");
 		if (slotAttribute) {
 			tmpStr = asLowerCaseString(slotAttribute.as_string());
-			if (tmpStr == "head") {
+			if (!tfs_strcmp(tmpStr.c_str(), "head")) {
 				slot = SLOTP_HEAD;
-			} else if (tmpStr == "necklace") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "necklace")) {
 				slot = SLOTP_NECKLACE;
-			} else if (tmpStr == "backpack") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "backpack")) {
 				slot = SLOTP_BACKPACK;
-			} else if (tmpStr == "armor") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "armor")) {
 				slot = SLOTP_ARMOR;
-			} else if (tmpStr == "right-hand") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "right-hand")) {
 				slot = SLOTP_RIGHT;
-			} else if (tmpStr == "left-hand") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "left-hand")) {
 				slot = SLOTP_LEFT;
-			} else if (tmpStr == "hand" || tmpStr == "shield") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "hand") || !tfs_strcmp(tmpStr.c_str(), "shield")) {
 				slot = SLOTP_RIGHT | SLOTP_LEFT;
-			} else if (tmpStr == "legs") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "legs")) {
 				slot = SLOTP_LEGS;
-			} else if (tmpStr == "feet") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "feet")) {
 				slot = SLOTP_FEET;
-			} else if (tmpStr == "ring") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "ring")) {
 				slot = SLOTP_RING;
-			} else if (tmpStr == "ammo") {
+			} else if (!tfs_strcmp(tmpStr.c_str(), "ammo")) {
 				slot = SLOTP_AMMO;
 			} else {
 				std::cout << "[Warning - MoveEvent::configureMoveEvent] Unknown slot type: " << slotAttribute.as_string() << std::endl;
@@ -659,45 +659,40 @@ uint32_t MoveEvent::RemoveItemField(Item*, Item*, const Position&)
 	return 1;
 }
 
-ReturnValue MoveEvent::EquipItem(MoveEvent* moveEvent, Player* player, Item* item, slots_t slot, bool isCheck)
+uint32_t MoveEvent::EquipItem(MoveEvent* moveEvent, Player* player, Item* item, slots_t slot, bool isCheck)
 {
+	if (player->isItemAbilityEnabled(slot)) {
+		return 1;
+	}
+
 	if (!player->hasFlag(PlayerFlag_IgnoreWeaponCheck) && moveEvent->getWieldInfo() != 0) {
-		const VocEquipMap& vocEquipMap = moveEvent->getVocEquipMap();
-		if (!vocEquipMap.empty() && vocEquipMap.find(player->getVocationId()) == vocEquipMap.end()) {
-			return RETURNVALUE_YOUDONTHAVEREQUIREDPROFESSION;
-		}
-
-		if (player->getLevel() < moveEvent->getReqLevel()) {
-			return RETURNVALUE_NOTENOUGHLEVEL;
-		}
-
-		if (player->getMagicLevel() < moveEvent->getReqMagLv()) {
-			return RETURNVALUE_NOTENOUGHMAGICLEVEL;
+		if (player->getLevel() < moveEvent->getReqLevel() || player->getMagicLevel() < moveEvent->getReqMagLv()) {
+			return 0;
 		}
 
 		if (moveEvent->isPremium() && !player->isPremium()) {
-			return RETURNVALUE_YOUNEEDPREMIUMACCOUNT;
+			return 0;
+		}
+
+		const VocEquipMap& vocEquipMap = moveEvent->getVocEquipMap();
+		if (!vocEquipMap.empty() && vocEquipMap.find(player->getVocationId()) == vocEquipMap.end()) {
+			return 0;
 		}
 	}
 
 	if (isCheck) {
-		return RETURNVALUE_NOERROR;
-	}
-
-	if (player->isItemAbilityEnabled(slot)) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 
 	const ItemType& it = Item::items[item->getID()];
 	if (it.transformEquipTo != 0) {
-		Item* newItem = g_game.transformItem(item, it.transformEquipTo);
-		g_game.startDecay(newItem);
+		g_game.transformItem(item, it.transformEquipTo);
 	} else {
 		player->setItemAbility(slot, true);
 	}
 
 	if (!it.abilities) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 
 	if (it.abilities->invisible) {
@@ -774,13 +769,13 @@ ReturnValue MoveEvent::EquipItem(MoveEvent* moveEvent, Player* player, Item* ite
 		player->sendStats();
 	}
 
-	return RETURNVALUE_NOERROR;
+	return 1;
 }
 
-ReturnValue MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots_t slot, bool)
+uint32_t MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots_t slot, bool)
 {
 	if (!player->isItemAbilityEnabled(slot)) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 
 	player->setItemAbility(slot, false);
@@ -788,11 +783,10 @@ ReturnValue MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots
 	const ItemType& it = Item::items[item->getID()];
 	if (it.transformDeEquipTo != 0) {
 		g_game.transformItem(item, it.transformDeEquipTo);
-		g_game.startDecay(item);
 	}
 
 	if (!it.abilities) {
-		return RETURNVALUE_NOERROR;
+		return 1;
 	}
 
 	if (it.abilities->invisible) {
@@ -849,7 +843,7 @@ ReturnValue MoveEvent::DeEquipItem(MoveEvent*, Player* player, Item* item, slots
 		player->sendStats();
 	}
 
-	return RETURNVALUE_NOERROR;
+	return 1;
 }
 
 bool MoveEvent::loadFunction(const pugi::xml_attribute& attr, bool isScripted)
@@ -923,16 +917,15 @@ bool MoveEvent::executeStep(Creature* creature, Item* item, const Position& pos)
 	return scriptInterface->callFunction(4);
 }
 
-ReturnValue MoveEvent::fireEquip(Player* player, Item* item, slots_t slot, bool isCheck)
+uint32_t MoveEvent::fireEquip(Player* player, Item* item, slots_t slot, bool isCheck)
 {
 	if (scripted) {
-		if (!equipFunction || equipFunction(this, player, item, slot, isCheck) == RETURNVALUE_NOERROR) {
+		if (!equipFunction || equipFunction(this, player, item, slot, isCheck) == 1) {
 			if (executeEquip(player, item, slot, isCheck)) {
-				return RETURNVALUE_NOERROR;
+				return 1;
 			}
-			return RETURNVALUE_CANNOTBEDRESSED;
 		}
-		return equipFunction(this, player, item, slot, isCheck);
+		return 0;
 	} else {
 		return equipFunction(this, player, item, slot, isCheck);
 	}

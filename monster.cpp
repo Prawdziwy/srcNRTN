@@ -238,7 +238,7 @@ void Monster::onCreatureMove(Creature* creature, const Tile* newTile, const Posi
 		}
 
 		if (canSeeNewPos && isSummon() && getMaster() == creature) {
-			isMasterInRange = true; //Follow master again
+			isMasterInRange = true;    //Follow master again
 		}
 
 		updateIdleStatus();
@@ -617,6 +617,23 @@ bool Monster::isTarget(const Creature* creature) const
 	if (creature->getPosition().z != getPosition().z) {
 		return false;
 	}
+
+	if (creature->getPlayer()) {
+		if(mType->info.ignoreStorageId != 0) {
+			int32_t value;
+			if(creature->getPlayer()->getStorageValue(mType->info.ignoreStorageId, value)) {
+				if (value != mType->info.ignoreStorageValue)
+					return false;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	const Monster* target = creature->getMonster();
+	if(target && target->isSummon() && !isTarget(target->getMaster()->getPlayer()))
+		return false;
+
 	return true;
 }
 
@@ -720,7 +737,6 @@ void Monster::onThink(uint32_t interval)
 
 	if (!isInSpawnRange(position)) {
 		g_game.internalTeleport(this, masterPos);
-		setIdle(true);
 	} else {
 		updateIdleStatus();
 
@@ -774,11 +790,11 @@ void Monster::doAttacking(uint32_t interval)
 
 	for (const spellBlock_t& spellBlock : mType->info.attackSpells) {
 		bool inRange = false;
-
+		
 		if (attackedCreature == nullptr) {
 			break;
 		}
-
+		
 		if (canUseSpell(myPos, targetPos, spellBlock, interval, inRange, resetTicks)) {
 			if (spellBlock.chance >= static_cast<uint32_t>(uniform_random(1, 100))) {
 				if (updateLook) {

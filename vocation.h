@@ -85,11 +85,23 @@ class Vocation
 		uint32_t getFromVocation() const {
 			return fromVocation;
 		}
+		void setAttackSpeed(uint64_t newAS) {
+			attackSpeed = newAS;
+		}
 
 		float meleeDamageMultiplier = 1.0f;
 		float distDamageMultiplier = 1.0f;
 		float defenseMultiplier = 1.0f;
 		float armorMultiplier = 1.0f;
+
+		uint64_t levelReq[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint64_t newLooktype[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		float meleeDamageMultiplierT[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+		float distDamageMultiplierT[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+		uint64_t additionalHealth[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint64_t additionalMana[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint64_t effect[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint64_t storage[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 	private:
 		friend class Vocations;
@@ -114,6 +126,8 @@ class Vocation
 		uint32_t attackSpeed = 1500;
 		uint32_t baseSpeed = 220;
 		uint16_t id;
+		uint32_t looktype;
+		std::string weapon = "none";
 
 		uint16_t gainSoulTicks = 120;
 
@@ -127,7 +141,6 @@ class Vocations
 {
 	public:
 		bool loadFromXml();
-
 		Vocation* getVocation(uint16_t id);
 		int32_t getVocationId(const std::string& name) const;
 		uint16_t getPromotedVocation(uint16_t vocationId) const;

@@ -41,11 +41,9 @@ void House::addTile(HouseTile* tile)
 void House::setOwner(uint32_t guid, bool updateDatabase/* = true*/, Player* player/* = nullptr*/)
 {
 	if (updateDatabase && owner != guid) {
-		Database& db = Database::getInstance();
-
 		std::ostringstream query;
 		query << "UPDATE `houses` SET `owner` = " << guid << ", `bid` = 0, `bid_end` = 0, `last_bid` = 0, `highest_bidder` = 0  WHERE `id` = " << id;
-		db.executeQuery(query.str());
+		g_database.executeQuery(query.str());
 	}
 
 	if (isLoaded && owner == guid) {
@@ -88,13 +86,13 @@ void House::setOwner(uint32_t guid, bool updateDatabase/* = true*/, Player* play
 	} else {
 		std::string strRentPeriod = asLowerCaseString(g_config.getString(ConfigManager::HOUSE_RENT_PERIOD));
 		time_t currentTime = time(nullptr);
-		if (strRentPeriod == "yearly") {
+		if (!tfs_strcmp(strRentPeriod.c_str(), "yearly")) {
 		    currentTime += 24 * 60 * 60 * 365;
-		} else if (strRentPeriod == "monthly") {
+		} else if (!tfs_strcmp(strRentPeriod.c_str(), "monthly")) {
 		    currentTime += 24 * 60 * 60 * 30;
-		} else if (strRentPeriod == "weekly") {
+		} else if (!tfs_strcmp(strRentPeriod.c_str(), "weekly")) {
 		    currentTime += 24 * 60 * 60 * 7;
-		} else if (strRentPeriod == "daily") {
+		} else if (!tfs_strcmp(strRentPeriod.c_str(), "daily")) {
 		    currentTime += 24 * 60 * 60;
 		} else {
 		    currentTime = 0;

@@ -35,6 +35,7 @@
 #include "script.h"
 #include <fstream>
 
+Database g_database;
 DatabaseTasks g_databaseTasks;
 Dispatcher g_dispatcher;
 Scheduler g_scheduler;
@@ -123,7 +124,6 @@ void mainLoader(int, char*[], ServiceManager* services)
 	std::cout << "A server developed by " << STATUS_SERVER_DEVELOPERS << std::endl;
 	std::cout << "Downgraded and further developed by Nekiro" << std::endl;
 	std::cout << "Visit our forum for updates, support, and resources: http://otland.net/." << std::endl;
-	std::cout << "Server protocol: " << CLIENT_VERSION_STR << std::endl;
 	std::cout << std::endl;
 
 	// check if config.lua or config.lua.dist exist
@@ -167,12 +167,17 @@ void mainLoader(int, char*[], ServiceManager* services)
 
 	std::cout << ">> Establishing database connection..." << std::flush;
 
-	if (!Database::getInstance().connect()) {
+	if (!g_database.connect()) {
 		startupErrorMessage("Failed to connect to database.");
 		return;
 	}
 
 	std::cout << " MySQL " << Database::getClientVersion() << std::endl;
+	if (g_database.getMaxPacketSize() < 104857600) {
+		std::cout << "> Max MYSQL Query size below 100MB might generate undefined behaviour." << std::endl;
+		std::cout << "> Do you want to continue? Press enter to continue." << std::endl;
+		getchar();
+	}
 
 	// run database manager
 	std::cout << ">> Running database manager" << std::endl;
@@ -240,11 +245,11 @@ void mainLoader(int, char*[], ServiceManager* services)
 
 	std::cout << ">> Checking world type... " << std::flush;
 	std::string worldType = asLowerCaseString(g_config.getString(ConfigManager::WORLD_TYPE));
-	if (worldType == "pvp") {
+	if (!tfs_strcmp(worldType.c_str(), "pvp")) {
 		g_game.setWorldType(WORLD_TYPE_PVP);
-	} else if (worldType == "no-pvp") {
+	} else if (!tfs_strcmp(worldType.c_str(), "no-pvp")) {
 		g_game.setWorldType(WORLD_TYPE_NO_PVP);
-	} else if (worldType == "pvp-enforced") {
+	} else if (!tfs_strcmp(worldType.c_str(), "pvp-enforced")) {
 		g_game.setWorldType(WORLD_TYPE_PVP_ENFORCED);
 	} else {
 		std::cout << std::endl;
@@ -278,13 +283,13 @@ void mainLoader(int, char*[], ServiceManager* services)
 	RentPeriod_t rentPeriod;
 	std::string strRentPeriod = asLowerCaseString(g_config.getString(ConfigManager::HOUSE_RENT_PERIOD));
 
-	if (strRentPeriod == "yearly") {
+	if (!tfs_strcmp(strRentPeriod.c_str(), "yearly")) {
 		rentPeriod = RENTPERIOD_YEARLY;
-	} else if (strRentPeriod == "weekly") {
+	} else if (!tfs_strcmp(strRentPeriod.c_str(), "weekly")) {
 		rentPeriod = RENTPERIOD_WEEKLY;
-	} else if (strRentPeriod == "monthly") {
+	} else if (!tfs_strcmp(strRentPeriod.c_str(), "monthly")) {
 		rentPeriod = RENTPERIOD_MONTHLY;
-	} else if (strRentPeriod == "daily") {
+	} else if (!tfs_strcmp(strRentPeriod.c_str(), "daily")) {
 		rentPeriod = RENTPERIOD_DAILY;
 	} else {
 		rentPeriod = RENTPERIOD_NEVER;

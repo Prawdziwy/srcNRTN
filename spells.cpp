@@ -43,57 +43,33 @@ Spells::~Spells()
 	clear(false);
 }
 
-TalkActionResult_t Spells::playerSaySpell(Player* player, std::string& words)
+TalkActionResult_t Spells::playerSaySpell(Player* player, std::string& words, const std::string& lowerWords)
 {
-	std::string str_words = words;
-
-	//strip trailing spaces
-	trimString(str_words);
-
-	InstantSpell* instantSpell = getInstantSpell(str_words);
-	if (!instantSpell) {
-		return TALKACTION_CONTINUE;
+	std::string param, instantWords = lowerWords;
+	if (instantWords.size() >= 4 && instantWords.front() != '"') {
+		size_t param_find = instantWords.find('"');
+		if (param_find != std::string::npos && instantWords[param_find - 1] == ' ') {
+			if (instantWords.back() == '"') {
+				instantWords.pop_back();
+			}
+			param = instantWords.substr(param_find + 1);
+			instantWords = instantWords.substr(0, param_find);
+			trim_right(instantWords, ' ');
+		}
 	}
 
-	std::string param;
-
-	if (instantSpell->getHasParam()) {
-		size_t spellLen = instantSpell->getWords().length();
-		size_t paramLen = str_words.length() - spellLen;
-		std::string paramText = str_words.substr(spellLen, paramLen);
-		if (!paramText.empty() && paramText.front() == ' ') {
-			size_t loc1 = paramText.find('"', 1);
-			if (loc1 != std::string::npos) {
-				size_t loc2 = paramText.find('"', loc1 + 1);
-				if (loc2 == std::string::npos) {
-					loc2 = paramText.length();
-				} else if (paramText.find_last_not_of(' ') != loc2) {
-					return TALKACTION_CONTINUE;
-				}
-
-				param = paramText.substr(loc1 + 1, loc2 - loc1 - 1);
-			} else {
-				trimString(paramText);
-				loc1 = paramText.find(' ', 0);
-				if (loc1 == std::string::npos) {
-					param = paramText;
-				} else {
-					return TALKACTION_CONTINUE;
-				}
-			}
-		}
+	InstantSpell* instantSpell = getInstantSpell(instantWords);
+	if (!instantSpell || (!param.empty() && !instantSpell->getHasParam()) || (param.empty() && instantSpell->getHasParam())) {
+		return TALKACTION_CONTINUE;
 	}
 
 	if (instantSpell->playerCastInstant(player, param)) {
 		words = instantSpell->getWords();
-
 		if (instantSpell->getHasParam() && !param.empty()) {
 			words += " \"" + param + "\"";
 		}
-
 		return TALKACTION_BREAK;
 	}
-
 	return TALKACTION_FAILED;
 }
 
@@ -1152,12 +1128,6 @@ bool RuneSpell::executeUse(Player* player, Item* item, const Position&, Thing* t
 	}
 
 	postCastSpell(player);
-
-	target = g_game.getCreatureByID(var.number);
-	if (target && getAggressive()) {
-		player->onAttackedCreature(target->getCreature(), false);
-	}
-
 	if (hasCharges && item && g_config.getBoolean(ConfigManager::REMOVE_RUNE_CHARGES)) {
 		int32_t newCount = std::max<int32_t>(0, item->getItemCount() - 1);
 		g_game.transformItem(item, item->getID(), newCount);

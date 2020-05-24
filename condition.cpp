@@ -179,6 +179,7 @@ Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, in
 			return new ConditionAttributes(id, type, ticks, buff, subId);
 
 		case CONDITION_INFIGHT:
+		case CONDITION_STUN:
 		case CONDITION_DRUNK:
 		case CONDITION_EXHAUST_WEAPON:
 		case CONDITION_EXHAUST_COMBAT:

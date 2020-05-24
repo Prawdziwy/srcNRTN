@@ -70,9 +70,26 @@ enum LightState_t {
 	LIGHT_STATE_SUNRISE,
 };
 
+struct RuleViolation
+{
+	RuleViolation(Player* _reporter, const std::string& _text, uint32_t _time):
+		reporter(_reporter), gamemaster(NULL), text(_text), time(_time), isOpen(true) {}
+
+	Player* reporter;
+	Player* gamemaster;
+	std::string text;
+	uint32_t time;
+	bool isOpen;
+
+	private:
+		RuleViolation(const RuleViolation&);
+};
+
 static constexpr int32_t EVENT_LIGHTINTERVAL = 10000;
 static constexpr int32_t EVENT_DECAYINTERVAL = 250;
 static constexpr int32_t EVENT_DECAY_BUCKETS = 4;
+
+typedef std::map<uint32_t, boost::shared_ptr<RuleViolation>> RuleViolationsMap;
 
 /**
   * Main Game class.
@@ -316,7 +333,6 @@ class Game
 		void kickPlayer(uint32_t playerId, bool displayEffect);
 		void playerReportBug(uint32_t playerId, const std::string& message);
 		void playerDebugAssert(uint32_t playerId, const std::string& assertLine, const std::string& date, const std::string& description, const std::string& comment);
-		void playerReportRuleViolation(uint32_t playerId, const std::string& targetName, uint8_t reportType, uint8_t reportReason, const std::string& comment, const std::string& translation);
 
 		bool internalStartTrade(Player* player, Player* tradePartner, Item* tradeItem);
 		void internalCloseTrade(Player* player);
@@ -340,8 +356,11 @@ class Game
 		void playerCloseChannel(uint32_t playerId, uint16_t channelId);
 		void playerOpenPrivateChannel(uint32_t playerId, std::string& receiver);
 		void playerCloseNpcChannel(uint32_t playerId);
+		bool playerProcessRuleViolation(uint32_t playerId, const std::string& name);
+		bool playerCloseRuleViolation(uint32_t playerId, const std::string& name);
+		bool playerCancelRuleViolation(uint32_t playerId);
 		void playerReceivePing(uint32_t playerId);
-		void playerAutoWalk(uint32_t playerId, const std::forward_list<Direction>& listDir);
+		void playerAutoWalk(uint32_t playerId, const std::vector<Direction>& listDir);
 		void playerStopAutoWalk(uint32_t playerId);
 		void playerUseItemEx(uint32_t playerId, const Position& fromPos, uint8_t fromStackPos,
 		                     uint16_t fromSpriteId, const Position& toPos, uint8_t toStackPos, uint16_t toSpriteId);
@@ -429,10 +448,14 @@ class Game
 		static void addCreatureHealth(const SpectatorVec& spectators, const Creature* target);
 		void addAnimatedText(const std::string& message, const Position& pos, TextColor_t color);
 		static void addAnimatedText(const SpectatorVec& list, const std::string& message, const Position& pos, TextColor_t color);
-		void addMagicEffect(const Position& pos, uint8_t effect);
-		static void addMagicEffect(const SpectatorVec& spectators, const Position& pos, uint8_t effect);
+		void addMagicEffect(const Position& pos, uint16_t effect);
+		static void addMagicEffect(const SpectatorVec& spectators, const Position& pos, uint16_t effect);
 		void addDistanceEffect(const Position& fromPos, const Position& toPos, uint8_t effect);
 		static void addDistanceEffect(const SpectatorVec& spectators, const Position& fromPos, const Position& toPos, uint8_t effect);
+
+		const RuleViolationsMap& getRuleViolations() const {return ruleViolations;}
+		bool cancelRuleViolation(Player* player);
+		bool closeRuleViolation(Player* player);
 
 		void startDecay(Item* item);
 		int32_t getLightHour() const {
@@ -481,14 +504,15 @@ class Game
 		Raids raids;
 		Quests quests;
 
-		std::forward_list<Item*> toDecayItems;
-
 	private:
+		bool playerTransform(uint32_t playerId);
 		bool playerSaySpell(Player* player, SpeakClasses type, const std::string& text);
 		void playerWhisper(Player* player, const std::string& text);
 		bool playerYell(Player* player, const std::string& text);
 		bool playerSpeakTo(Player* player, SpeakClasses type, const std::string& receiver, const std::string& text);
 		void playerSpeakToNpc(Player* player, const std::string& text);
+		bool playerReportRuleViolation(Player* player, const std::string& text);
+		bool playerContinueReport(Player* player, const std::string& text);
 
 		void checkDecay();
 		void internalDecayItem(Item* item);
@@ -500,8 +524,10 @@ class Game
 		std::unordered_map<uint16_t, Item*> uniqueItems;
 		std::map<uint32_t, uint32_t> stages;
 
-		std::list<Item*> decayItems[EVENT_DECAY_BUCKETS];
-		std::list<Creature*> checkCreatureLists[EVENT_CREATURECOUNT];
+		std::vector<Item*> decayItems[EVENT_DECAY_BUCKETS];
+		std::vector<Creature*> checkCreatureLists[EVENT_CREATURECOUNT];
+
+		std::vector<Item*> toDecayItems;
 
 		std::vector<Creature*> ToReleaseCreatures;
 		std::vector<Item*> ToReleaseItems;
@@ -512,6 +538,8 @@ class Game
 
 		std::map<uint32_t, Npc*> npcs;
 		std::map<uint32_t, Monster*> monsters;
+
+		RuleViolationsMap ruleViolations;
 
 		//list of items that are in trading state, mapped to the player
 		std::map<Item*, uint32_t> tradeItems;

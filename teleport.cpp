@@ -77,7 +77,7 @@ void Teleport::addThing(int32_t, Thing* thing)
 		return;
 	}
 
-	const MagicEffectClasses effect = Item::items[id].magicEffect;
+	const MagicEffectClasses effect = Item::items[getID()].magicEffect;
 
 	if (Creature* creature = thing->getCreature()) {
 		Position origPos = creature->getPosition();
@@ -92,7 +92,7 @@ void Teleport::addThing(int32_t, Thing* thing)
 			g_game.addMagicEffect(destTile->getPosition(), effect);
 			g_game.addMagicEffect(item->getPosition(), effect);
 		}
-		g_game.internalMoveItem(getTile(), destTile, INDEX_WHEREEVER, item, item->getItemCount(), nullptr, FLAG_NOLIMIT);
+		g_game.internalMoveItem(getTile(), destTile, INDEX_WHEREEVER, item, item->getItemCount(), nullptr);
 	}
 }
 

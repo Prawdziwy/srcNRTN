@@ -70,6 +70,7 @@ const std::unordered_map<std::string, ItemParseAttributes_t> ItemParseAttributes
 	{"charges", ITEM_PARSE_CHARGES},
 	{"showcharges", ITEM_PARSE_SHOWCHARGES},
 	{"showattributes", ITEM_PARSE_SHOWATTRIBUTES},
+	{"skillmultiplier", ITEM_PARSE_SKILLMULTIPLIER},
 	{"hitchance", ITEM_PARSE_HITCHANCE},
 	{"maxhitchance", ITEM_PARSE_MAXHITCHANCE},
 	{"invisible", ITEM_PARSE_INVISIBLE},
@@ -93,6 +94,12 @@ const std::unordered_map<std::string, ItemParseAttributes_t> ItemParseAttributes
 	{"magicpoints", ITEM_PARSE_MAGICPOINTS},
 	{"magiclevelpoints", ITEM_PARSE_MAGICPOINTS},
 	{"magicpointspercent", ITEM_PARSE_MAGICPOINTSPERCENT},
+	{"criticalhitchance", ITEM_PARSE_CRITICALHITCHANCE},
+	{"criticalhitamount", ITEM_PARSE_CRITICALHITAMOUNT},
+	{"lifeleechchance", ITEM_PARSE_LIFELEECHCHANCE},
+	{"lifeleechamount", ITEM_PARSE_LIFELEECHAMOUNT},
+	{"manaleechchance", ITEM_PARSE_MANALEECHCHANCE},
+	{"manaleechamount", ITEM_PARSE_MANALEECHAMOUNT},
 	{"fieldabsorbpercentenergy", ITEM_PARSE_FIELDABSORBPERCENTENERGY},
 	{"fieldabsorbpercentfire", ITEM_PARSE_FIELDABSORBPERCENTFIRE},
 	{"fieldabsorbpercentpoison", ITEM_PARSE_FIELDABSORBPERCENTPOISON},
@@ -140,69 +147,6 @@ const std::unordered_map<std::string, ItemParseAttributes_t> ItemParseAttributes
 	{"walkstack", ITEM_PARSE_WALKSTACK},
 	{"blocking", ITEM_PARSE_BLOCKING},
 	{"allowdistread", ITEM_PARSE_ALLOWDISTREAD},
-};
-
-const std::unordered_map<std::string, ItemTypes_t> ItemTypesMap = {
-	{"key", ITEM_TYPE_KEY},
-	{"magicfield", ITEM_TYPE_MAGICFIELD},
-	{"container", ITEM_TYPE_CONTAINER},
-	{"depot", ITEM_TYPE_DEPOT},
-	{"mailbox", ITEM_TYPE_MAILBOX},
-	{"trashholder", ITEM_TYPE_TRASHHOLDER},
-	{"teleport", ITEM_TYPE_TELEPORT},
-	{"door", ITEM_TYPE_DOOR},
-	{"bed", ITEM_TYPE_BED},
-	{"rune", ITEM_TYPE_RUNE},
-};
-
-const std::unordered_map<std::string, tileflags_t> TileStatesMap = {
-	{"down", TILESTATE_FLOORCHANGE_DOWN},
-	{"north", TILESTATE_FLOORCHANGE_NORTH},
-	{"south", TILESTATE_FLOORCHANGE_SOUTH},
-	{"southalt", TILESTATE_FLOORCHANGE_SOUTH_ALT},
-	{"west", TILESTATE_FLOORCHANGE_WEST},
-	{"east", TILESTATE_FLOORCHANGE_EAST},
-	{"eastalt", TILESTATE_FLOORCHANGE_EAST_ALT},
-};
-
-const std::unordered_map<std::string, RaceType_t> RaceTypesMap = {
-	{"venom", RACE_VENOM},
-	{"blood", RACE_BLOOD},
-	{"undead", RACE_UNDEAD},
-	{"fire", RACE_FIRE},
-	{"energy", RACE_ENERGY},
-};
-
-const std::unordered_map<std::string, WeaponType_t> WeaponTypesMap = {
-	{"sword", WEAPON_SWORD},
-	{"club", WEAPON_CLUB},
-	{"axe", WEAPON_AXE},
-	{"shield", WEAPON_SHIELD},
-	{"distance", WEAPON_DISTANCE},
-	{"wand", WEAPON_WAND},
-	{"ammunition", WEAPON_AMMO},
-};
-
-const std::unordered_map<std::string, FluidTypes_t> FluidTypesMap = {
-	{"water", FLUID_WATER},
-	{"blood", FLUID_BLOOD},
-	{"beer", FLUID_BEER},
-	{"slime", FLUID_SLIME},
-	{"lemonade", FLUID_LEMONADE},
-	{"milk", FLUID_MILK},
-	{"mana", FLUID_MANA},
-	{"life", FLUID_LIFE},
-	{"oil", FLUID_OIL},
-	{"urine", FLUID_URINE},
-	{"coconut", FLUID_COCONUTMILK},
-	{"wine", FLUID_WINE},
-	{"mud", FLUID_MUD},
-	{"fruitjuice", FLUID_FRUITJUICE},
-	{"lava", FLUID_LAVA},
-	{"rum", FLUID_RUM},
-	{"swamp", FLUID_SWAMP},
-	{"tea", FLUID_TEA},
-	{"mead", FLUID_MEAD},
 };
 
 
@@ -283,10 +227,17 @@ bool Items::loadFromOtb(const std::string& file)
 	} else if (majorVersion != 3) {
 		std::cout << "Old version detected, a newer version of items.otb is required." << std::endl;
 		return false;
-	} else if (minorVersion < CLIENT_VERSION_860_OLD) {
+	} else if (minorVersion != CLIENT_VERSION_854_BAD) {
 		std::cout << "A newer version of items.otb is required." << std::endl;
 		return false;
 	}
+
+	std::ostringstream query;
+	query << "DELETE FROM `server_items`";
+	if(!g_database.executeQuery(query.str()))
+		std::cout << "[ERROR]: error while removing all elements in server_items table." << std::endl;
+
+	DBInsert query_insert(&g_database, "INSERT INTO `server_items` (`serverId`, `clientId`) VALUES ");
 
 	for (auto& itemNode : root.children) {
 		PropStream stream;
@@ -462,7 +413,17 @@ bool Items::loadFromOtb(const std::string& file)
 		iType.lightColor = lightColor;
 		iType.wareId = wareId;
 		iType.alwaysOnTopOrder = alwaysOnTopOrder;
+
+
+		// saving items to database
+		query.str("");
+		query << iType.id << "," << iType.clientId;
+		if(!query_insert.addRow(query))
+			std::cout << "[ERROR]: error while saving item with id: " << iType.id << "." << std::endl;
 	}
+
+	if(!query_insert.execute())
+		std::cout << "[ERROR]: error while saving items to database." << std::endl;
 
 	items.shrink_to_fit();
 	return true;
@@ -580,14 +541,31 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 			switch (parseType) {
 				case ITEM_PARSE_TYPE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					auto it2 = ItemTypesMap.find(tmpStrValue);
-					if (it2 != ItemTypesMap.end()) {
-						it.type = it2->second;
-						if (it.type == ITEM_TYPE_CONTAINER) {
-							it.group = ITEM_GROUP_CONTAINER;
-						}
+					if (!tfs_strcmp(tmpStrValue.c_str(), "key")) {
+						it.type = ITEM_TYPE_KEY;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "magicfield")) {
+						it.type = ITEM_TYPE_MAGICFIELD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "container")) {
+						it.type = ITEM_TYPE_CONTAINER;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "depot")) {
+						it.type = ITEM_TYPE_DEPOT;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "mailbox")) {
+						it.type = ITEM_TYPE_MAILBOX;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "trashholder")) {
+						it.type = ITEM_TYPE_TRASHHOLDER;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "teleport")) {
+						it.type = ITEM_TYPE_TELEPORT;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "door")) {
+						it.type = ITEM_TYPE_DOOR;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "bed")) {
+						it.type = ITEM_TYPE_BED;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "rune")) {
+						it.type = ITEM_TYPE_RUNE;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown type: " << valueAttribute.as_string() << std::endl;
+					}
+					if (it.type == ITEM_TYPE_CONTAINER) {
+						it.group = ITEM_GROUP_CONTAINER;
 					}
 					break;
 				}
@@ -659,9 +637,20 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_FLOORCHANGE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					auto it2 = TileStatesMap.find(tmpStrValue);
-					if (it2 != TileStatesMap.end()) {
-						it.floorChange |= it2->second;
+					if (!tfs_strcmp(tmpStrValue.c_str(), "down")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_DOWN;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "north")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_NORTH;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "south")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_SOUTH;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "southalt")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_SOUTH_ALT;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "west")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_WEST;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "east")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_EAST;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "eastalt")) {
+						it.floorChange |= TILESTATE_FLOORCHANGE_EAST_ALT;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown floorChange: " << valueAttribute.as_string() << std::endl;
 					}
@@ -670,9 +659,16 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_CORPSETYPE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					auto it2 = RaceTypesMap.find(tmpStrValue);
-					if (it2 != RaceTypesMap.end()) {
-						it.corpseType = it2->second;
+					if (!tfs_strcmp(tmpStrValue.c_str(), "venom")) {
+						it.corpseType = RACE_VENOM;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "blood")) {
+						it.corpseType = RACE_BLOOD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "undead")) {
+						it.corpseType = RACE_UNDEAD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "fire")) {
+						it.corpseType = RACE_FIRE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "energy")) {
+						it.corpseType = RACE_ENERGY;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown corpseType: " << valueAttribute.as_string() << std::endl;
 					}
@@ -686,9 +682,44 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_FLUIDSOURCE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					auto it2 = FluidTypesMap.find(tmpStrValue);
-					if (it2 != FluidTypesMap.end()) {
-						it.fluidSource = it2->second;
+					if (!tfs_strcmp(tmpStrValue.c_str(), "water")) {
+						it.fluidSource = FLUID_WATER;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "blood")) {
+						it.fluidSource = FLUID_BLOOD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "beer")) {
+						it.fluidSource = FLUID_BEER;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "slime")) {
+						it.fluidSource = FLUID_SLIME;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "lemonade")) {
+						it.fluidSource = FLUID_LEMONADE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "milk")) {
+						it.fluidSource = FLUID_MILK;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "mana")) {
+						it.fluidSource = FLUID_MANA;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "life")) {
+						it.fluidSource = FLUID_LIFE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "oil")) {
+						it.fluidSource = FLUID_OIL;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "urine")) {
+						it.fluidSource = FLUID_URINE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "coconut")) {
+						it.fluidSource = FLUID_COCONUTMILK;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "wine")) {
+						it.fluidSource = FLUID_WINE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "mud")) {
+						it.fluidSource = FLUID_MUD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "fruitjuice")) {
+						it.fluidSource = FLUID_FRUITJUICE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "lava")) {
+						it.fluidSource = FLUID_LAVA;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "rum")) {
+						it.fluidSource = FLUID_RUM;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "swamp")) {
+						it.fluidSource = FLUID_SWAMP;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "tea")) {
+						it.fluidSource = FLUID_TEA;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "mead")) {
+						it.fluidSource = FLUID_MEAD;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown fluidSource: " << valueAttribute.as_string() << std::endl;
 					}
@@ -718,9 +749,20 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_WEAPONTYPE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					auto it2 = WeaponTypesMap.find(tmpStrValue);
-					if (it2 != WeaponTypesMap.end()) {
-						it.weaponType = it2->second;
+					if (!tfs_strcmp(tmpStrValue.c_str(), "sword")) {
+						it.weaponType = WEAPON_SWORD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "club")) {
+						it.weaponType = WEAPON_CLUB;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "axe")) {
+						it.weaponType = WEAPON_AXE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "shield")) {
+						it.weaponType = WEAPON_SHIELD;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "distance")) {
+						it.weaponType = WEAPON_DISTANCE;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "wand")) {
+						it.weaponType = WEAPON_WAND;
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "ammunition")) {
+						it.weaponType = WEAPON_AMMO;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown weaponType: " << valueAttribute.as_string() << std::endl;
 					}
@@ -729,29 +771,29 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_SLOTTYPE: {
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					if (tmpStrValue == "head") {
+					if (!tfs_strcmp(tmpStrValue.c_str(), "head")) {
 						it.slotPosition |= SLOTP_HEAD;
-					} else if (tmpStrValue == "body") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "body")) {
 						it.slotPosition |= SLOTP_ARMOR;
-					} else if (tmpStrValue == "legs") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "legs")) {
 						it.slotPosition |= SLOTP_LEGS;
-					} else if (tmpStrValue == "feet") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "feet")) {
 						it.slotPosition |= SLOTP_FEET;
-					} else if (tmpStrValue == "backpack") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "backpack")) {
 						it.slotPosition |= SLOTP_BACKPACK;
-					} else if (tmpStrValue == "two-handed") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "two-handed")) {
 						it.slotPosition |= SLOTP_TWO_HAND;
-					} else if (tmpStrValue == "right-hand") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "right-hand")) {
 						it.slotPosition &= ~SLOTP_LEFT;
-					} else if (tmpStrValue == "left-hand") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "left-hand")) {
 						it.slotPosition &= ~SLOTP_RIGHT;
-					} else if (tmpStrValue == "necklace") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "necklace")) {
 						it.slotPosition |= SLOTP_NECKLACE;
-					} else if (tmpStrValue == "ring") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "ring")) {
 						it.slotPosition |= SLOTP_RING;
-					} else if (tmpStrValue == "ammo") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "ammo")) {
 						it.slotPosition |= SLOTP_AMMO;
-					} else if (tmpStrValue == "hand") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "hand")) {
 						it.slotPosition |= SLOTP_HAND;
 					} else {
 						std::cout << "[Warning - Items::parseItemNode] Unknown slotType: " << valueAttribute.as_string() << std::endl;
@@ -834,6 +876,11 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 
 				case ITEM_PARSE_SHOWATTRIBUTES: {
 					it.showAttributes = valueAttribute.as_bool();
+					break;
+				}
+
+				case ITEM_PARSE_SKILLMULTIPLIER: {
+					it.skillMultiplier = pugi::cast<uint32_t>(valueAttribute.value());
 					break;
 				}
 
@@ -1125,19 +1172,19 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 					ConditionDamage* conditionDamage = nullptr;
 
 					tmpStrValue = asLowerCaseString(valueAttribute.as_string());
-					if (tmpStrValue == "fire") {
+					if (!tfs_strcmp(tmpStrValue.c_str(), "fire")) {
 						conditionDamage = new ConditionDamage(CONDITIONID_COMBAT, CONDITION_FIRE);
 						combatType = COMBAT_FIREDAMAGE;
-					} else if (tmpStrValue == "energy") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "energy")) {
 						conditionDamage = new ConditionDamage(CONDITIONID_COMBAT, CONDITION_ENERGY);
 						combatType = COMBAT_ENERGYDAMAGE;
-					} else if (tmpStrValue == "poison") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "poison")) {
 						conditionDamage = new ConditionDamage(CONDITIONID_COMBAT, CONDITION_POISON);
 						combatType = COMBAT_EARTHDAMAGE;
-					} else if (tmpStrValue == "drown") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "drown")) {
 						conditionDamage = new ConditionDamage(CONDITIONID_COMBAT, CONDITION_DROWN);
 						combatType = COMBAT_DROWNDAMAGE;
-					} else if (tmpStrValue == "physical") {
+					} else if (!tfs_strcmp(tmpStrValue.c_str(), "physical")) {
 						conditionDamage = new ConditionDamage(CONDITIONID_COMBAT, CONDITION_BLEEDING);
 						combatType = COMBAT_PHYSICALDAMAGE;
 					} else {
@@ -1163,13 +1210,13 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 							}
 
 							tmpStrValue = asLowerCaseString(subKeyAttribute.as_string());
-							if (tmpStrValue == "ticks") {
+							if (!tfs_strcmp(tmpStrValue.c_str(), "ticks")) {
 								ticks = pugi::cast<uint32_t>(subValueAttribute.value());
-							} else if (tmpStrValue == "count") {
+							} else if (!tfs_strcmp(tmpStrValue.c_str(), "count")) {
 								count = std::max<int32_t>(1, pugi::cast<int32_t>(subValueAttribute.value()));
-							} else if (tmpStrValue == "start") {
+							} else if (!tfs_strcmp(tmpStrValue.c_str(), "start")) {
 								start = std::max<int32_t>(0, pugi::cast<int32_t>(subValueAttribute.value()));
-							} else if (tmpStrValue == "damage") {
+							} else if (!tfs_strcmp(tmpStrValue.c_str(), "damage")) {
 								int32_t damage = -pugi::cast<int32_t>(subValueAttribute.value());
 								if (start > 0) {
 									std::list<int32_t> damageList;

@@ -334,6 +334,33 @@ class Player final : public Creature, public Cylinder
 		uint8_t getLevelPercent() const {
 			return levelPercent;
 		}
+		
+		uint16_t specialLootRate;
+		uint16_t getSpecialLootRate() const {
+			return specialLootRate;
+		}
+		void setSpecialLootRate(uint16_t newRate) {
+			specialLootRate = newRate;
+		}
+
+		uint8_t transform;
+		uint8_t getTransform() const {
+			return transform;
+		}
+		void setTransform(uint8_t newTransform) {
+			transform = newTransform;
+		}
+
+		uint64_t additionalAttackSpeed;
+		uint64_t getAdditionalAttackSpeed() const {
+			if (additionalAttackSpeed < 0 || additionalAttackSpeed > 3000)
+				return 0;
+			return additionalAttackSpeed;
+		}
+		void setAdditionalAttackSpeed(uint64_t newAdditionalAttackSpeed) {
+			additionalAttackSpeed = newAdditionalAttackSpeed;
+		}
+		
 		uint32_t getMagicLevel() const {
 			return std::max<int32_t>(0, magLevel + varStats[STAT_MAGICPOINTS]);
 		}
@@ -416,6 +443,10 @@ class Player final : public Creature, public Cylinder
 
 		int32_t getMaxHealth() const override {
 			return std::max<int32_t>(1, healthMax + varStats[STAT_MAXHITPOINTS]);
+		}
+		void setMaxHealth(uint64_t newMaxHealth) {
+			healthMax = newMaxHealth;
+			sendStats();
 		}
 		uint32_t getMana() const {
 			return mana;
@@ -588,7 +619,7 @@ class Player final : public Creature, public Cylinder
 		void onAddCombatCondition(ConditionType_t type) override;
 		void onEndCondition(ConditionType_t type) override;
 		void onCombatRemoveCondition(Condition* condition) override;
-		void onAttackedCreature(Creature* target, bool addFightTicks = true) override;
+		void onAttackedCreature(Creature* target) override;
 		void onAttacked() override;
 		void onAttackedCreatureDrainHealth(Creature* target, int32_t points) override;
 		void onTargetCreatureGainHealth(Creature* target, int32_t points) override;
@@ -691,6 +722,11 @@ class Player final : public Creature, public Cylinder
 		void sendPrivateMessage(const Player* speaker, SpeakClasses type, const std::string& text) {
 			if (client) {
 				client->sendPrivateMessage(speaker, type, text);
+			}
+		}
+		void sendPrivateMessageRVR(const Player* speaker, SpeakClasses type, const std::string& text) {
+			if (client) {
+				client->sendPrivateMessageRVR(speaker, type, text);
 			}
 		}
 		void sendCreatureSquare(const Creature* creature, SquareColor_t color) {
@@ -838,7 +874,7 @@ class Player final : public Creature, public Cylinder
 				client->sendIcons(getClientIcons());
 			}
 		}
-		void sendMagicEffect(const Position& pos, uint8_t type) const {
+		void sendMagicEffect(const Position& pos, uint16_t type) const {
 			if (client) {
 				client->sendMagicEffect(pos, type);
 			}
@@ -878,6 +914,11 @@ class Player final : public Creature, public Cylinder
 		void sendToChannel(const Creature* creature, SpeakClasses type, const std::string& text, uint16_t channelId) const {
 			if (client) {
 				client->sendToChannel(creature, type, text, channelId);
+			}
+		}
+		void sendToChannelT(const Creature* creature, SpeakClasses type, const std::string& text, uint16_t channelId, uint32_t time) const {
+			if (client) {
+				client->sendToChannelT(creature, type, text, channelId, time);
 			}
 		}
 		void sendShop() const {
@@ -936,6 +977,14 @@ class Player final : public Creature, public Cylinder
 				client->sendChannel(channelId, channelName);
 			}
 		}
+		void sendRuleViolationsChannel(uint16_t channelId)
+			{if(client) client->sendRuleViolationsChannel(channelId);}
+		void sendRemoveReport(const std::string& name)
+			{if(client) client->sendRemoveReport(name);}
+		void sendLockRuleViolation()
+			{if(client) client->sendLockRuleViolation();}
+		void sendRuleViolationCancel(const std::string& name)
+			{if(client) client->sendRuleViolationCancel(name);}
 		void sendTutorial(uint8_t tutorialId) {
 			if (client) {
 				client->sendTutorial(tutorialId);
@@ -995,8 +1044,44 @@ class Player final : public Creature, public Cylinder
 		void learnInstantSpell(const std::string& spellName);
 		void forgetInstantSpell(const std::string& spellName);
 		bool hasLearnedInstantSpell(const std::string& spellName) const;
+		
+		uint32_t transformEvent, effectEvent;
+		uint32_t getTransformId() const {return transformId;}
+		
+		void setTransformId(uint32_t _transformId, bool changeStorage) 
+		{
+			transformId = _transformId;
+			
+			if(changeStorage)
+				this->addStorageValue(TRANSFORM_STORAGE, _transformId);
+		}
+		void setTransformRequiments(int32_t _burnManaCount, uint32_t _burnManaTicks, MagicEffectClasses _effect, uint32_t _effectTicks)
+		{
+			burnManaCount = _burnManaCount;
+			burnManaTicks = _burnManaTicks;
+			effect = _effect;
+			effectTicks = _effectTicks;
+		}
+		void getTransformRequiments(int32_t& _burnManaCount, uint32_t& _burnManaTicks)
+		{
+			_burnManaCount = burnManaCount;
+			_burnManaTicks = burnManaTicks;
+		}
+		void getTransformEffect(MagicEffectClasses& _effect, uint32_t& _effectTicks)
+		{
+			_effect = effect;
+			_effectTicks = effectTicks;
+		}
+
+		void setTransformAttribute(TransformAttributes_t attribute, uint32_t value) {transformAttributes[attribute] = value;}
+		uint32_t getTransformAttribute(TransformAttributes_t attribute) const {return transformAttributes[attribute];}
 
 	private:
+		uint32_t transformId, burnManaTicks, effectTicks;
+		int32_t burnManaCount;
+		MagicEffectClasses effect;
+		uint32_t transformAttributes[TRANSFORM_LAST + 1];
+
 		std::forward_list<Condition*> getMuteConditions() const;
 
 		void checkTradeState(const Item* item);
@@ -1049,7 +1134,7 @@ class Player final : public Creature, public Cylinder
 		std::map<uint8_t, OpenContainer> openContainers;
 		std::map<uint32_t, DepotLocker*> depotLockerMap;
 		std::map<uint32_t, DepotChest*> depotChests;
-		std::map<uint32_t, int32_t> storageMap;
+		std::unordered_map<uint32_t, int32_t> storageMap;
 
 		std::vector<OutfitEntry> outfits;
 		GuildWarVector guildWarVector;
@@ -1168,7 +1253,11 @@ class Player final : public Creature, public Cylinder
 		bool isPromoted() const;
 
 		uint32_t getAttackSpeed() const {
-			return vocation->getAttackSpeed();
+			uint64_t as = (vocation->getAttackSpeed()-(getSkillLevel(SKILL_FIST)*7));
+			uint64_t aas = getAdditionalAttackSpeed();
+			if (aas > 0)
+				as -= aas;
+			return as;
 		}
 
 		static uint8_t getPercentLevel(uint64_t count, uint64_t nextLevelCount);

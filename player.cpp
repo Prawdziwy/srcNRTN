@@ -975,11 +975,9 @@ void Player::onCreatureAppear(Creature* creature, bool isLogin)
 	Creature::onCreatureAppear(creature, isLogin);
 
 	if (isLogin && creature == this) {
-
 		for (int32_t slot = CONST_SLOT_FIRST; slot <= CONST_SLOT_LAST; ++slot) {
 			Item* item = inventory[slot];
 			if (item) {
-				item->startDecaying();
 				g_moveEvents->onPlayerEquip(this, item, static_cast<slots_t>(slot), false);
 			}
 		}
@@ -993,7 +991,7 @@ void Player::onCreatureAppear(Creature* creature, bool isLogin)
 		if (bed) {
 			bed->wakeUp(this);
 		}
-
+		
 		Account account = IOLoginData::loadAccount(accountNumber);
 		Game::updatePremium(account);
 
@@ -1093,6 +1091,20 @@ void Player::onRemoveCreature(Creature* creature, bool isLogout)
 		closeShopWindow();
 
 		clearPartyInvitations();
+
+		g_game.cancelRuleViolation(this);
+
+		if(this->getAccountType() >= ACCOUNT_TYPE_TUTOR) {
+			PlayerVector closeReportList;
+			for(RuleViolationsMap::const_iterator it = g_game.getRuleViolations().begin(); it != g_game.getRuleViolations().end(); ++it)
+			{
+				if(it->second->gamemaster == this)
+					closeReportList.push_back(it->second->reporter);
+			}
+
+			for(PlayerVector::iterator it = closeReportList.begin(); it != closeReportList.end(); ++it)
+				g_game.closeRuleViolation(*it);
+		}
 
 		if (party) {
 			party->leaveParty(this);
@@ -1557,8 +1569,8 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 	}
 
 	if (prevLevel != level) {
-		health = getMaxHealth();
-		mana = getMaxMana();
+		health = healthMax;
+		mana = manaMax;
 
 		updateBaseSpeed();
 		setBaseSpeed(getBaseSpeed());
@@ -1635,8 +1647,8 @@ void Player::removeExperience(uint64_t exp, bool sendText/* = false*/)
 	}
 
 	if (oldLevel != level) {
-		health = getMaxHealth();
-		mana = getMaxMana();
+		health = healthMax;
+		mana = manaMax;
 
 		updateBaseSpeed();
 		setBaseSpeed(getBaseSpeed());
@@ -2337,8 +2349,15 @@ ReturnValue Player::queryAdd(int32_t index, const Thing& thing, uint32_t count, 
 			break;
 	}
 
+
 	if (ret != RETURNVALUE_NOERROR && ret != RETURNVALUE_NOTENOUGHROOM) {
 		return ret;
+	}
+
+	//need an exchange with source?
+	const Item* inventoryItem = getInventoryItem(static_cast<slots_t>(index));
+	if (inventoryItem && (!inventoryItem->isStackable() || inventoryItem->getID() != item->getID())) {
+		return RETURNVALUE_NEEDEXCHANGE;
 	}
 
 	//check if enough capacity
@@ -2346,20 +2365,8 @@ ReturnValue Player::queryAdd(int32_t index, const Thing& thing, uint32_t count, 
 		return RETURNVALUE_NOTENOUGHCAPACITY;
 	}
 
-	ret = g_moveEvents->onPlayerEquip(const_cast<Player*>(this), const_cast<Item*>(item), static_cast<slots_t>(index), true);
-	if (ret != RETURNVALUE_NOERROR) {
-		return ret;
-	}
-
-	//need an exchange with source? (destination item is swapped with currently moved item)
-	const Item* inventoryItem = getInventoryItem(static_cast<slots_t>(index));
-	if (inventoryItem && (!inventoryItem->isStackable() || inventoryItem->getID() != item->getID())) {
-		const Cylinder* cylinder = item->getTopParent();
-		if (cylinder && (dynamic_cast<const DepotChest*>(cylinder) || dynamic_cast<const Player*>(cylinder))) {
-			return RETURNVALUE_NEEDEXCHANGE;
-		}
-
-		return RETURNVALUE_NOTENOUGHROOM;
+	if (!g_moveEvents->onPlayerEquip(const_cast<Player*>(this), const_cast<Item*>(item), static_cast<slots_t>(index), true)) {
+		return RETURNVALUE_CANNOTBEDRESSED;
 	}
 	return ret;
 }
@@ -3270,7 +3277,7 @@ void Player::onCombatRemoveCondition(Condition* condition)
 	}
 }
 
-void Player::onAttackedCreature(Creature* target, bool addFightTicks /* = true */)
+void Player::onAttackedCreature(Creature* target)
 {
 	Creature::onAttackedCreature(target);
 
@@ -3279,9 +3286,7 @@ void Player::onAttackedCreature(Creature* target, bool addFightTicks /* = true *
 	}
 
 	if (target == this) {
-		if (addFightTicks) {
-			addInFightTicks();
-		}
+		addInFightTicks();
 		return;
 	}
 
@@ -3295,8 +3300,6 @@ void Player::onAttackedCreature(Creature* target, bool addFightTicks /* = true *
 			pzLocked = true;
 			sendIcons();
 		}
-
-		targetPlayer->addInFightTicks();
 
 		if (getSkull() == SKULL_NONE && getSkullClient(targetPlayer) == SKULL_YELLOW) {
 			addAttacked(targetPlayer);
@@ -3321,9 +3324,7 @@ void Player::onAttackedCreature(Creature* target, bool addFightTicks /* = true *
 		}
 	}
 
-	if (addFightTicks) {
-		addInFightTicks();
-	}
+	addInFightTicks();
 }
 
 void Player::onAttacked()

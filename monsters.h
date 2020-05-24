@@ -79,6 +79,7 @@ struct spellBlock_t {
 		range(other.range),
 		minCombatValue(other.minCombatValue),
 		maxCombatValue(other.maxCombatValue),
+		name(other.name),
 		combatSpell(other.combatSpell),
 		isMelee(other.isMelee) {
 		other.spell = nullptr;
@@ -90,6 +91,7 @@ struct spellBlock_t {
 	uint32_t range = 0;
 	int32_t minCombatValue = 0;
 	int32_t maxCombatValue = 0;
+	std::string name = "none";
 	bool combatSpell = false;
 	bool isMelee = false;
 };
@@ -133,6 +135,8 @@ class MonsterType
 		uint32_t damageImmunities = 0;
 		uint32_t baseSpeed = 200;
 
+		int32_t ignoreStorageId;
+		int32_t ignoreStorageValue;
 		int32_t creatureAppearEvent = -1;
 		int32_t creatureDisappearEvent = -1;
 		int32_t creatureMoveEvent = -1;
@@ -140,11 +144,13 @@ class MonsterType
 		int32_t thinkEvent = -1;
 		int32_t targetDistance = 1;
 		int32_t runAwayHealth = 0;
-		int32_t health = 100;
-		int32_t healthMax = 100;
+		uint64_t health = 100;
+		uint64_t healthMax = 100;
 		int32_t changeTargetChance = 0;
 		int32_t defense = 0;
 		int32_t armor = 0;
+
+		double normalChance, weekendChance;
 
 		bool canPushItems = false;
 		bool canPushCreatures = false;
@@ -158,6 +164,9 @@ class MonsterType
 		bool canWalkOnEnergy = true;
 		bool canWalkOnFire = true;
 		bool canWalkOnPoison = true;
+		bool canChange = false;
+
+		std::string newMonsterName;
 
 		MonstersEvent_t eventType = MONSTERS_EVENT_NONE;
 	};
@@ -241,7 +250,6 @@ class Monsters
 		bool deserializeSpell(MonsterSpell* spell, spellBlock_t& sb, const std::string& description = "");
 
 		std::unique_ptr<LuaScriptInterface> scriptInterface;
-		std::map<std::string, MonsterType> monsters;
 
 	private:
 		ConditionDamage* getDamageCondition(ConditionType_t conditionType,
@@ -253,6 +261,7 @@ class Monsters
 		void loadLootContainer(const pugi::xml_node& node, LootBlock&);
 		bool loadLootItem(const pugi::xml_node& node, LootBlock&);
 
+		std::map<std::string, MonsterType> monsters;
 		std::map<std::string, std::string> unloadedMonsters;
 
 		bool loaded = false;

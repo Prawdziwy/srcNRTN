@@ -181,11 +181,6 @@ Item* Item::clone() const
 	Item* item = Item::CreateItem(id, count);
 	if (attributes) {
 		item->attributes.reset(new ItemAttributes(*attributes));
-		if (item->getDuration() > 0) {
-			item->incrementReferenceCounter();
-			item->setDecaying(DECAYING_TRUE);
-			g_game.toDecayItems.push_front(item);
-		}
 	}
 	return item;
 }
@@ -1618,17 +1613,10 @@ void ItemAttributes::removeAttribute(itemAttrTypes type)
 		return;
 	}
 
-	auto prev_it = attributes.cbegin();
-	if ((*prev_it).type == type) {
-		attributes.pop_front();
-	} else {
-		auto it = prev_it, end = attributes.cend();
-		while (++it != end) {
-			if ((*it).type == type) {
-				attributes.erase_after(prev_it);
-				break;
-			}
-			prev_it = it;
+	for (auto it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+		if ((*it).type == type) {
+			attributes.erase(it);
+			break;
 		}
 	}
 	attributeBits &= ~type;
@@ -1688,8 +1676,8 @@ ItemAttributes::Attribute& ItemAttributes::getAttr(itemAttrTypes type)
 	}
 
 	attributeBits |= type;
-	attributes.emplace_front(type);
-	return attributes.front();
+	attributes.emplace_back(type);
+	return attributes.back();
 }
 
 void Item::startDecaying()
