@@ -124,6 +124,9 @@ class Monster final : public Creature
 			this->spawn = spawn;
 		}
 		bool canWalkOnFieldType(CombatType_t combatType) const;
+		bool isDummyTrainer() const {
+			return mType->info.dummyTrainer;
+		}
 
 
 		void onAttackedCreatureDisappear(bool isLogout) override;

@@ -194,6 +194,10 @@ ReturnValue Combat::canTargetCreature(Player* attacker, Creature* target)
 	}
 
 	if (!attacker->hasFlag(PlayerFlag_IgnoreProtectionZone)) {
+		if(Monster* monster = const_cast<Monster*>(target->getMonster())) {
+			if(monster->isDummyTrainer == true)
+				return Combat::canDoCombat(attacker, target);
+		}
 		//pz-zone
 		if (attacker->getZone() == ZONE_PROTECTION) {
 			return RETURNVALUE_YOUMAYNOTATTACKAPERSONWHILEINPROTECTIONZONE;

@@ -904,6 +904,8 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 				mType->info.ignoreStorageValue = pugi::cast<int32_t>(attr.value());
 			} else if (strcasecmp(attrName, "canChange") == 0) {
 				mType->info.canChange = attr.as_bool();
+			} else if (strcasecmp(attrName, "dummyTrainer") == 0) {
+				mType->info.dummyTrainer = attr.as_bool();
 			} else if (strcasecmp(attrName, "normalChance") == 0) {
 				mType->info.normalChance = pugi::cast<double>(attr.value());
 			} else if (strcasecmp(attrName, "weekendChance") == 0) {
