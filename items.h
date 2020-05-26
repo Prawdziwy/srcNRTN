@@ -167,6 +167,7 @@ enum ItemParseAttributes_t {
 	ITEM_PARSE_BLOCKING,
 	ITEM_PARSE_ALLOWDISTREAD,
 	ITEM_PARSE_DONTBLOCKWALK,
+	ITEM_PARSE_SAVEITEMID,
 };
 
 struct Abilities {
@@ -336,6 +337,7 @@ class ItemType
 		uint16_t speed = 0;
 		uint16_t wareId = 0;
 		uint16_t skillMultiplier = 0;
+		uint16_t saveItemID = 0;
 
 		MagicEffectClasses magicEffect = CONST_ME_NONE;
 		Direction bedPartnerDir = DIRECTION_NONE;

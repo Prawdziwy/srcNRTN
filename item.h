@@ -811,6 +811,9 @@ class Item : virtual public Thing
 		uint16_t getBlockWalk() const {
 			return items[id].dontBlockWalk;
 		}
+		uint16_t getSaveItemID() const {
+			return items[id].saveItemID;
+		}
 		void setID(uint16_t newid);
 
 		// Returns the player that is holding this item in his inventory

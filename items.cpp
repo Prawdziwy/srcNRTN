@@ -149,6 +149,7 @@ const std::unordered_map<std::string, ItemParseAttributes_t> ItemParseAttributes
 	{"blocking", ITEM_PARSE_BLOCKING},
 	{"allowdistread", ITEM_PARSE_ALLOWDISTREAD},
 	{"dontblockwalk", ITEM_PARSE_DONTBLOCKWALK},
+	{"saveitemid", ITEM_PARSE_SAVEITEMID},
 };
 
 
@@ -1345,6 +1346,11 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 				
 				case ITEM_PARSE_DONTBLOCKWALK: {
 					it.dontBlockWalk = valueAttribute.as_bool();
+					break;
+				}
+				
+				case ITEM_PARSE_SAVEITEMID: {
+					it.dontBlockWalk = pugi::cast<uint32_t>(valueAttribute.value());
 					break;
 				}
 
