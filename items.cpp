@@ -1350,7 +1350,7 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 				}
 				
 				case ITEM_PARSE_SAVEITEMID: {
-					it.dontBlockWalk = pugi::cast<uint32_t>(valueAttribute.value());
+					it.saveItemID = pugi::cast<uint32_t>(valueAttribute.value());
 					break;
 				}
 
