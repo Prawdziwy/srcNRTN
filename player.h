@@ -1044,43 +1044,11 @@ class Player final : public Creature, public Cylinder
 		void learnInstantSpell(const std::string& spellName);
 		void forgetInstantSpell(const std::string& spellName);
 		bool hasLearnedInstantSpell(const std::string& spellName) const;
-		
-		uint32_t transformEvent, effectEvent;
-		uint32_t getTransformId() const {return transformId;}
-		
-		void setTransformId(uint32_t _transformId, bool changeStorage) 
-		{
-			transformId = _transformId;
-			
-			if(changeStorage)
-				this->addStorageValue(TRANSFORM_STORAGE, _transformId);
-		}
-		void setTransformRequiments(int32_t _burnManaCount, uint32_t _burnManaTicks, MagicEffectClasses _effect, uint32_t _effectTicks)
-		{
-			burnManaCount = _burnManaCount;
-			burnManaTicks = _burnManaTicks;
-			effect = _effect;
-			effectTicks = _effectTicks;
-		}
-		void getTransformRequiments(int32_t& _burnManaCount, uint32_t& _burnManaTicks)
-		{
-			_burnManaCount = burnManaCount;
-			_burnManaTicks = burnManaTicks;
-		}
-		void getTransformEffect(MagicEffectClasses& _effect, uint32_t& _effectTicks)
-		{
-			_effect = effect;
-			_effectTicks = effectTicks;
-		}
-
-		void setTransformAttribute(TransformAttributes_t attribute, uint32_t value) {transformAttributes[attribute] = value;}
-		uint32_t getTransformAttribute(TransformAttributes_t attribute) const {return transformAttributes[attribute];}
 
 	private:
-		uint32_t transformId, burnManaTicks, effectTicks;
+		uint32_t burnManaTicks, effectTicks;
 		int32_t burnManaCount;
 		MagicEffectClasses effect;
-		uint32_t transformAttributes[TRANSFORM_LAST + 1];
 
 		std::forward_list<Condition*> getMuteConditions() const;
 
