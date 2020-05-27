@@ -166,6 +166,7 @@ class MonsterType
 		bool canWalkOnPoison = true;
 		bool canChange = false;
 		bool dummyTrainer = false;
+		bool closerSummon = false;
 
 		std::string newMonsterName;
 

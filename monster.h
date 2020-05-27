@@ -127,6 +127,9 @@ class Monster final : public Creature
 		bool isDummyTrainer() const {
 			return mType->info.dummyTrainer;
 		}
+		bool isCloserSummon() const {
+			return mType->info.closerSummon;
+		}
 
 
 		void onAttackedCreatureDisappear(bool isLogout) override;

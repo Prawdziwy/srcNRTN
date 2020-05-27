@@ -906,6 +906,8 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 				mType->info.canChange = attr.as_bool();
 			} else if (strcasecmp(attrName, "dummyTrainer") == 0) {
 				mType->info.dummyTrainer = attr.as_bool();
+			} else if (strcasecmp(attrName, "closerSummon") == 0) {
+				mType->info.closerSummon = attr.as_bool();
 			} else if (strcasecmp(attrName, "normalChance") == 0) {
 				mType->info.normalChance = pugi::cast<double>(attr.value());
 			} else if (strcasecmp(attrName, "weekendChance") == 0) {
