@@ -250,12 +250,7 @@ void Monster::onCreatureMove(Creature* creature, const Tile* newTile, const Posi
 
 				int32_t offset_x = Position::getDistanceX(followPosition, position);
 				int32_t offset_y = Position::getDistanceY(followPosition, position);
-				
-				int16_t offset_check = 1;
-				if (isCloserSummon() == true)
-					offset_check = 0;
-				
-				if ((offset_x > offset_check || offset_y > offset_check) && mType->info.changeTargetChance > 0) {
+				if ((offset_x > 1 || offset_y > 1) && mType->info.changeTargetChance > 0) {
 					Direction dir = getDirectionTo(position, followPosition);
 					const Position& checkPosition = getNextPosition(dir, position);
 
@@ -1996,7 +1991,10 @@ void Monster::getPathSearchParams(const Creature* creature, FindPathParams& fpp)
 
 	if (isSummon()) {
 		if (getMaster() == creature) {
-			fpp.maxTargetDist = 2;
+			if(isCloserSummon() == true)
+				fpp.maxTargetDist = 1;
+			else
+				fpp.maxTargetDist = 2;
 			fpp.fullPathSearch = true;
 		} else if (mType->info.targetDistance <= 1) {
 			fpp.fullPathSearch = true;
