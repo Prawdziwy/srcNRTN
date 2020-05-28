@@ -189,8 +189,10 @@ ReturnValue Combat::canTargetCreature(Player* attacker, Creature* target)
 	}
 
 	if(Monster* monster = const_cast<Monster*>(target->getMonster())) {
-		if(!monster->isTarget(attacker))
-			return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
+		if(!monster->isTarget(attacker)) {
+			if (attacker->getGroup()->id < 2)
+				return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
+		}
 	}
 
 	if (!attacker->hasFlag(PlayerFlag_IgnoreProtectionZone)) {

@@ -3631,10 +3631,14 @@ bool Game::combatBlockHit(CombatDamage& damage, Creature* attacker, Creature* ta
 	Monster* attackerMonster = attacker->getMonster();
 	Monster* targetMonster = target->getMonster();
 
-	if (targetMonster && !targetMonster->isTarget(attacker))
+	if (targetMonster && !targetMonster->isTarget(attacker)) {
+		Player* attackerPlayer = attacker->getPlayer();
+		if (!attackerPlayer || (attackerPlayer && attackerPlayer->getGroup()->id < 2))
+			return true;
+	}
+	if (attackerMonster && !attackerMonster->isTarget(target)) {
 		return true;
-	if (attackerMonster && !attackerMonster->isTarget(target))
-		return true;
+	}
 
 	static const auto sendBlockEffect = [this](BlockType_t blockType, CombatType_t combatType, const Position& targetPos) {
 		if (blockType == BLOCK_DEFENSE) {
