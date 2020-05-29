@@ -371,7 +371,7 @@ class ConditionLight final : public Condition
 {
 	public:
 		ConditionLight(ConditionId_t id, ConditionType_t type, int32_t ticks, bool buff, uint32_t subId, uint8_t lightlevel, uint8_t lightcolor, bool aggressive = false) :
-			Condition(id, type, ticks, buff, subId), lightInfo(lightlevel, lightcolor, aggressive) {}
+			Condition(id, type, ticks, buff, subId, aggressive), lightInfo(lightlevel, lightcolor) {}
 
 		bool startCondition(Creature* creature) override;
 		bool executeCondition(Creature* creature, int32_t interval) override;
