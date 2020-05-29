@@ -41,6 +41,11 @@ bool Condition::setParam(ConditionParam_t param, int32_t value)
 			subId = value;
 			return true;
 		}
+		
+		case CONDITION_PARAM_AGGRESSIVE: {
+			aggressive = (value != 0);
+			return true;
+		}
 
 		default: {
 			return false;
@@ -99,6 +104,16 @@ bool Condition::unserializeProp(ConditionAttr_t attr, PropStream& propStream)
 		case CONDITIONATTR_SUBID: {
 			return propStream.read<uint32_t>(subId);
 		}
+		
+		case CONDITIONATTR_ISAGGRESSIVE: {
+			uint8_t value;
+			if (!propStream.read<uint8_t>(value)) {
+				return false;
+			}
+
+			aggressive = (value != 0);
+			return true;
+		}
 
 		case CONDITIONATTR_END:
 			return true;
@@ -124,6 +139,9 @@ void Condition::serialize(PropWriteStream& propWriteStream)
 
 	propWriteStream.write<uint8_t>(CONDITIONATTR_SUBID);
 	propWriteStream.write<uint32_t>(subId);
+	
+	propWriteStream.write<uint8_t>(CONDITIONATTR_ISAGGRESSIVE);
+	propWriteStream.write<uint8_t>(aggressive);
 }
 
 void Condition::setTicks(int32_t newTicks)
@@ -143,7 +161,7 @@ bool Condition::executeCondition(Creature*, int32_t interval)
 	return getEndTime() >= OTSYS_TIME();
 }
 
-Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, int32_t ticks, int32_t param/* = 0*/, bool buff/* = false*/, uint32_t subId/* = 0*/)
+Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, int32_t ticks, int32_t param/* = 0*/, bool buff/* = false*/, uint32_t subId/* = 0*/, bool aggressive/* = false */)
 {
 	switch (type) {
 		case CONDITION_POISON:
@@ -154,29 +172,29 @@ Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, in
 		case CONDITION_DAZZLED:
 		case CONDITION_CURSED:
 		case CONDITION_BLEEDING:
-			return new ConditionDamage(id, type, buff, subId);
+			return new ConditionDamage(id, type, buff, subId, aggressive);
 
 		case CONDITION_HASTE:
 		case CONDITION_PARALYZE:
-			return new ConditionSpeed(id, type, ticks, buff, subId, param);
+			return new ConditionSpeed(id, type, ticks, buff, subId, param, aggressive);
 
 		case CONDITION_INVISIBLE:
-			return new ConditionInvisible(id, type, ticks, buff, subId);
+			return new ConditionInvisible(id, type, ticks, buff, subId, aggressive);
 
 		case CONDITION_OUTFIT:
-			return new ConditionOutfit(id, type, ticks, buff, subId);
+			return new ConditionOutfit(id, type, ticks, buff, subId, aggressive);
 
 		case CONDITION_LIGHT:
-			return new ConditionLight(id, type, ticks, buff, subId, param & 0xFF, (param & 0xFF00) >> 8);
+			return new ConditionLight(id, type, ticks, buff, subId, param & 0xFF, (param & 0xFF00) >> 8, aggressive);
 
 		case CONDITION_REGENERATION:
-			return new ConditionRegeneration(id, type, ticks, buff, subId);
+			return new ConditionRegeneration(id, type, ticks, buff, subId, aggressive);
 
 		case CONDITION_SOUL:
-			return new ConditionSoul(id, type, ticks, buff, subId);
+			return new ConditionSoul(id, type, ticks, buff, subId, aggressive);
 
 		case CONDITION_ATTRIBUTES:
-			return new ConditionAttributes(id, type, ticks, buff, subId);
+			return new ConditionAttributes(id, type, ticks, buff, subId, aggressive);
 
 		case CONDITION_INFIGHT:
 		case CONDITION_STUN:
@@ -189,7 +207,7 @@ Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, in
 		case CONDITION_YELLTICKS:
 		case CONDITION_PACIFIED:
 		case CONDITION_MANASHIELD:
-			return new ConditionGeneric(id, type, ticks, buff, subId);
+			return new ConditionGeneric(id, type, ticks, buff, subId, aggressive);
 
 		default:
 			return nullptr;
@@ -243,8 +261,13 @@ Condition* Condition::createCondition(PropStream& propStream)
 	if (!propStream.read<uint32_t>(subId)) {
 		return nullptr;
 	}
+	
+	uint8_t aggressive;
+	if (!propStream.read<uint8_t>(aggressive)) {
+		return nullptr;
+	}
 
-	return createCondition(static_cast<ConditionId_t>(id), static_cast<ConditionType_t>(type), ticks, 0, buff != 0, subId);
+	return createCondition(static_cast<ConditionId_t>(id), static_cast<ConditionType_t>(type), ticks, 0, buff != 0, subId, aggressive);
 }
 
 bool Condition::startCondition(Creature*)
@@ -635,6 +658,12 @@ bool ConditionAttributes::setParam(ConditionParam_t param, int32_t value)
 			disableDefense = (value != 0);
 			return true;
 		}
+		
+		case CONDITION_PARAM_AGGRESSIVE: {
+			aggressive = (value != 0);
+			return true;
+		}
+		
 		default:
 			return ret;
 	}
