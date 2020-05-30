@@ -1220,7 +1220,9 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 							}
 
 							tmpStrValue = asLowerCaseString(subKeyAttribute.as_string());
-							if (!tfs_strcmp(tmpStrValue.c_str(), "ticks")) {
+							if (!tfs_strcmp(tmpStrValue.c_str(), "initdamage")) {
+								conditionDamage->setInitDamage(-pugi::cast<int32_t>(subValueAttribute.value()));
+							} else if (!tfs_strcmp(tmpStrValue.c_str(), "ticks")) {
 								ticks = pugi::cast<uint32_t>(subValueAttribute.value());
 							} else if (!tfs_strcmp(tmpStrValue.c_str(), "count")) {
 								count = std::max<int32_t>(1, pugi::cast<int32_t>(subValueAttribute.value()));
@@ -1350,7 +1352,7 @@ void Items::parseItemNode(const pugi::xml_node& itemNode, uint16_t id)
 				}
 				
 				case ITEM_PARSE_SAVEITEMID: {
-					it.saveItemID = pugi::cast<uint32_t>(valueAttribute.value());
+					it.saveItemID = pugi::cast<uint16_t>(valueAttribute.value());
 					break;
 				}
 
