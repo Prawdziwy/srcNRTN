@@ -3199,8 +3199,8 @@ bool Game::playerTransform(uint32_t playerId)
 	int32_t value;
 	int32_t blocked = 0;
 	std::string msg;
+	msg="You can't transform";
 	if (newTransformId < (TRANSFORMS_LAST+1)) {
-		msg="You can't transform";
 		if (player->getVocation()->storage[newTransformId] > 1) {
 			if (player->getStorageValue(player->getVocation()->storage[newTransformId], value) && value == 1) {
 				blocked = 0;
@@ -3249,9 +3249,11 @@ bool Game::playerTransform(uint32_t playerId)
 			return true;
 		} else {
 			player->sendCancelMessage(msg);
-			return true;
+			return false;
 		}
-
+	} else {
+		player->sendCancelMessage(msg);
+		return false;
 	}
 	return false;
 }

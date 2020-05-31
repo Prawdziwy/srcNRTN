@@ -461,7 +461,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	player->currentOutfit = player->defaultOutfit;
 	player->direction = static_cast<Direction> (result->getNumber<uint16_t>("direction"));
 	player->setSpecialLootRate(result->getNumber<uint16_t>("special_rate_loot"));
-	player->setTransform(result->getNumber<uint64_t>("transform"));
+	player->setTransform(result->getNumber<uint8_t>("transform"));
 
 	if (g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) {
 		const time_t skullSeconds = result->getNumber<time_t>("skulltime") - time(nullptr);
@@ -782,7 +782,7 @@ bool IOLoginData::savePlayer(Player* player)
 	query << "`skill_fishing_tries` = " << player->skills[SKILL_FISHING].tries << ',';
 	query << "`direction` = " << static_cast<uint16_t> (player->getDirection()) << ',';
 	query << "`special_rate_loot` = " << static_cast<uint16_t>(player->getSpecialLootRate()) << ",";
-	query << "`transform` = " << static_cast<uint32_t>(player->getTransform()) << ",";
+	query << "`transform` = " << static_cast<uint8_t>(player->getTransform()) << ",";
 
 	if (!player->isOffline()) {
 		query << "`onlinetime` = `onlinetime` + " << (time(nullptr) - player->lastLoginSaved) << ',';
