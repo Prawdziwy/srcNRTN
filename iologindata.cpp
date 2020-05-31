@@ -460,7 +460,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	player->defaultOutfit.lookAddons = result->getNumber<uint16_t>("lookaddons");
 	player->currentOutfit = player->defaultOutfit;
 	player->direction = static_cast<Direction> (result->getNumber<uint16_t>("direction"));
-	player->setSpecialLootRate(result->getNumber<uint16_t>("special_rate_loot"));
+	player->setSpecialLootRate(result->getNumber<uint8_t>("special_rate_loot"));
 	player->setTransform(result->getNumber<uint8_t>("transform"));
 
 	if (g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) {
@@ -781,7 +781,7 @@ bool IOLoginData::savePlayer(Player* player)
 	query << "`skill_fishing` = " << player->skills[SKILL_FISHING].level << ',';
 	query << "`skill_fishing_tries` = " << player->skills[SKILL_FISHING].tries << ',';
 	query << "`direction` = " << static_cast<uint16_t> (player->getDirection()) << ',';
-	query << "`special_rate_loot` = " << static_cast<uint16_t>(player->getSpecialLootRate()) << ",";
+	query << "`special_rate_loot` = " << static_cast<uint8_t>(player->getSpecialLootRate()) << ",";
 	query << "`transform` = " << static_cast<uint8_t>(player->getTransform()) << ",";
 
 	if (!player->isOffline()) {
