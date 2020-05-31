@@ -335,11 +335,11 @@ class Player final : public Creature, public Cylinder
 			return levelPercent;
 		}
 		
-		uint16_t specialLootRate;
-		uint16_t getSpecialLootRate() const {
+		uint8_t specialLootRate;
+		uint8_t getSpecialLootRate() const {
 			return specialLootRate;
 		}
-		void setSpecialLootRate(uint16_t newRate) {
+		void setSpecialLootRate(uint8_t newRate) {
 			specialLootRate = newRate;
 		}
 
@@ -351,13 +351,13 @@ class Player final : public Creature, public Cylinder
 			transform = newTransform;
 		}
 
-		uint64_t additionalAttackSpeed;
-		uint64_t getAdditionalAttackSpeed() const {
+		uint8_t additionalAttackSpeed;
+		uint8_t getAdditionalAttackSpeed() const {
 			if (additionalAttackSpeed < 0 || additionalAttackSpeed > 3000)
 				return 0;
 			return additionalAttackSpeed;
 		}
-		void setAdditionalAttackSpeed(uint64_t newAdditionalAttackSpeed) {
+		void setAdditionalAttackSpeed(uint8_t newAdditionalAttackSpeed) {
 			additionalAttackSpeed = newAdditionalAttackSpeed;
 		}
 		
