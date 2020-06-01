@@ -37,7 +37,7 @@ void printXMLError(const std::string& where, const std::string& fileName, const 
 	uint32_t currentLine = 1;
 	std::string line;
 
-	size_t offset = static_cast<size_t>(result.offset);
+	auto offset = static_cast<size_t>(result.offset);
 	size_t lineOffsetPosition = 0;
 	size_t index = 0;
 	size_t bytes;
