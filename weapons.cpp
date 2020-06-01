@@ -619,7 +619,7 @@ int32_t WeaponMelee::getElementDamage(const Player* player, const Creature*, con
 	int32_t attackValue = elementDamage;
 	float attackFactor = player->getAttackFactor();
 
-	uint8_t transformId = player->getTransform();
+	uint16_t transformId = player->getTransform();
 
 	int32_t maxValue = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
 
@@ -637,7 +637,7 @@ int32_t WeaponMelee::getWeaponDamage(const Player* player, const Creature*, cons
 	float attackFactor = player->getAttackFactor();
 
 	int32_t maxValue;
-	uint8_t transformId = player->getTransform();
+	uint16_t transformId = player->getTransform();
 	if (transformId > 0) {
 		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->meleeDamageMultiplierT[transformId]);
 	} else {
@@ -879,7 +879,7 @@ int32_t WeaponDistance::getWeaponDamage(const Player* player, const Creature* ta
 	int32_t attackSkill = player->getSkillLevel(SKILL_DISTANCE);
 	float attackFactor = player->getAttackFactor();
 
-	uint64_t transformId = player->getTransform();
+	uint16_t transformId = player->getTransform();
 	int32_t maxValue;
 
 	if (transformId > 0) {
