@@ -93,7 +93,7 @@ struct Skill {
 
 using MuteCountMap = std::map<uint32_t, uint32_t>;
 
-static constexpr int32_t PLAYER_MAX_SPEED = 1500;
+static constexpr int32_t PLAYER_MAX_SPEED = 1200;
 static constexpr int32_t PLAYER_MIN_SPEED = 10;
 
 class Player final : public Creature, public Cylinder
@@ -458,8 +458,8 @@ class Player final : public Creature, public Cylinder
 			}
 		}
 
-		int32_t getMaxHealth() const override {
-			return std::max<int32_t>(1, healthMax + varStats[STAT_MAXHITPOINTS]);
+		int64_t getMaxHealth() const override {
+			return std::max<int64_t>(1, healthMax + varStats[STAT_MAXHITPOINTS]);
 		}
 		void setMaxHealth(uint64_t newMaxHealth) {
 			healthMax = newMaxHealth;
@@ -1061,6 +1061,9 @@ class Player final : public Creature, public Cylinder
 		void learnInstantSpell(const std::string& spellName);
 		void forgetInstantSpell(const std::string& spellName);
 		bool hasLearnedInstantSpell(const std::string& spellName) const;
+		void addAutoLootItem(uint16_t itemId);
+		void removeAutoLootItem(uint16_t itemId);
+		bool getAutoLootItem(uint16_t itemId);
 
 	private:
 		uint32_t burnManaTicks, effectTicks;
@@ -1114,6 +1117,7 @@ class Player final : public Creature, public Cylinder
 		void internalAddThing(uint32_t index, Thing* thing) override;
 
 		std::unordered_set<uint32_t> attackedSet;
+		std::set<uint32_t> autoLootList;
 		std::unordered_set<uint32_t> VIPList;
 
 		std::map<uint8_t, OpenContainer> openContainers;

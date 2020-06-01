@@ -605,11 +605,7 @@ bool Player::canOpenCorpse(uint32_t ownerId) const
 
 uint16_t Player::getLookCorpse() const
 {
-	if (sex == PLAYERSEX_FEMALE) {
-		return ITEM_FEMALE_CORPSE;
-	} else {
-		return ITEM_MALE_CORPSE;
-	}
+	return 6080;
 }
 
 void Player::addStorageValue(const uint32_t key, const int32_t value, const bool isLogin/* = false*/)
@@ -3818,6 +3814,21 @@ bool Player::hasLearnedInstantSpell(const std::string& spellName) const
 		return true;
 	}
 	return false;
+}
+
+void Player::addAutoLootItem(uint16_t itemId)
+{
+    autoLootList.insert(itemId);
+}
+
+void Player::removeAutoLootItem(uint16_t itemId)
+{
+    autoLootList.erase(itemId);
+}
+
+bool Player::getAutoLootItem(const uint16_t itemId)
+{
+    return autoLootList.find(itemId) != autoLootList.end();
 }
 
 bool Player::isInWar(const Player* player) const
