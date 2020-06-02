@@ -100,6 +100,7 @@ class Container : public Item, public Cylinder
 			return itemlist.rend();
 		}
 
+		std::string getName(bool addArticle = false) const;
 		void addItem(Item* item);
 		Item* getItemByIndex(size_t index) const;
 		bool isHoldingItem(const Item* item) const;
