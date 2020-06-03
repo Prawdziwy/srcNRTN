@@ -2253,6 +2253,9 @@ void LuaScriptInterface::registerFunctions()
 
 	registerMethod("Player", "getTransform", LuaScriptInterface::luaPlayerGetTransform);
 	registerMethod("Player", "setTransform", LuaScriptInterface::luaPlayerSetTransform);
+	
+	registerMethod("Player", "getBlessingDrop", LuaScriptInterface::luaPlayerGetBlessingDrop);
+	registerMethod("Player", "setBlessingDrop", LuaScriptInterface::luaPlayerSetBlessingDrop);
 
 	registerMethod("Player", "getAttackSpeed", LuaScriptInterface::luaPlayerGetAttackSpeed);
 
@@ -8399,6 +8402,32 @@ int LuaScriptInterface::luaPlayerSetTransform(lua_State* L)
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
 		player->setTransform(transform);
+		pushBoolean(L, true);
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerGetBlessingDrop(lua_State* L)
+{
+	//player:getBlessingDrop()
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		lua_pushnumber(L, player->getBlessingDrop());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerSetBlessingDrop(lua_State* L)
+{
+	// player:setBlessingDrop(id)
+	uint16_t blessingDrop = getNumber<uint16_t>(L, 2);
+	Player* player = getUserdata<Player>(L, 1);
+	if (player) {
+		player->setBlessingDrop(blessingDrop);
 		pushBoolean(L, true);
 	} else {
 		lua_pushnil(L);

@@ -878,6 +878,9 @@ class LuaScriptInterface
 
 		static int luaPlayerGetTransform(lua_State* L);
 		static int luaPlayerSetTransform(lua_State* L);
+		
+		static int luaPlayerGetBlessingDrop(lua_State* L);
+		static int luaPlayerSetBlessingDrop(lua_State* L);
 
 		static int luaPlayerGetAttackSpeed(lua_State* L);
 
