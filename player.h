@@ -335,30 +335,38 @@ class Player final : public Creature, public Cylinder
 			return levelPercent;
 		}
 		
-		uint8_t specialLootRate;
-		uint8_t getSpecialLootRate() const {
+		uint16_t specialLootRate;
+		uint16_t getSpecialLootRate() const {
 			return specialLootRate;
 		}
-		void setSpecialLootRate(uint8_t newRate) {
+		void setSpecialLootRate(uint16_t newRate) {
 			specialLootRate = newRate;
 		}
 
-		uint8_t transform;
-		uint8_t getTransform() const {
+		uint16_t transform;
+		uint16_t getTransform() const {
 			return transform;
 		}
-		void setTransform(uint8_t newTransform) {
+		void setTransform(uint16_t newTransform) {
 			transform = newTransform;
 		}
 
-		uint8_t additionalAttackSpeed;
-		uint8_t getAdditionalAttackSpeed() const {
+		uint16_t additionalAttackSpeed;
+		uint16_t getAdditionalAttackSpeed() const {
 			if (additionalAttackSpeed < 0 || additionalAttackSpeed > 3000)
 				return 0;
 			return additionalAttackSpeed;
 		}
-		void setAdditionalAttackSpeed(uint8_t newAdditionalAttackSpeed) {
+		void setAdditionalAttackSpeed(uint16_t newAdditionalAttackSpeed) {
 			additionalAttackSpeed = newAdditionalAttackSpeed;
+		}
+		
+		uint8_t blessingDrop = 0;
+		uint8_t getBlessingDrop() const {
+			return blessingDrop;
+		}
+		void setBlessingDrop(uint8_t newBlessingDrop) {
+			blessingDrop = newBlessingDrop;
 		}
 		
 		uint32_t getMagicLevel() const {

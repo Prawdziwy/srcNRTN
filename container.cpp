@@ -57,11 +57,6 @@ Container* Container::getParentContainer()
 	return thing->getContainer();
 }
 
-std::string Container::getName(bool addArticle /* = false*/) const {
-	const ItemType& it = items[id];
-	return getNameDescription(it, this, -1, addArticle);
-}
-
 void Container::addItem(Item* item)
 {
 	itemlist.push_back(item);
