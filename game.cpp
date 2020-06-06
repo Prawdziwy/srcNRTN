@@ -3223,7 +3223,7 @@ bool Game::playerTransform(uint32_t playerId)
 
 			player->healthMax = player->getMaxHealth()+player->getVocation()->additionalHealth[newTransformId];
 			player->health = std::min<int32_t>(player->health, player->healthMax);
-			g_game.addCreatureHealth(player);
+			addCreatureHealth(player);
 			player->manaMax = player->getMaxMana()+player->getVocation()->additionalMana[newTransformId];
 			player->mana = std::min<int32_t>(player->mana, player->manaMax);
 			player->sendStats();
