@@ -118,29 +118,14 @@ bool Vocations::loadFromXml()
 			voc.skillMultipliers[3] = 2.0;
 			voc.skillMultipliers[4] = 1.1;
 		}
+		
+		voc.meleeDamageMultiplier = 1.0f;
+		voc.distDamageMultiplier = 1.0f;
+		voc.defenseMultiplier = 1.0f;
+		voc.armorMultiplier = 1.0f;
 
 		for (auto childNode : vocationNode.children()) {
-			if (strcasecmp(childNode.name(), "formula") == 0) {
-				pugi::xml_attribute meleeDamageAttribute = childNode.attribute("meleeDamage");
-				if (meleeDamageAttribute) {
-					voc.meleeDamageMultiplier = pugi::cast<float>(meleeDamageAttribute.value());
-				}
-
-				pugi::xml_attribute distDamageAttribute = childNode.attribute("distDamage");
-				if (distDamageAttribute) {
-					voc.distDamageMultiplier = pugi::cast<float>(distDamageAttribute.value());
-				}
-
-				pugi::xml_attribute defenseAttribute = childNode.attribute("defense");
-				if (defenseAttribute) {
-					voc.defenseMultiplier = pugi::cast<float>(defenseAttribute.value());
-				}
-
-				pugi::xml_attribute armorAttribute = childNode.attribute("armor");
-				if (armorAttribute) {
-					voc.armorMultiplier = pugi::cast<float>(armorAttribute.value());
-				}
-			} else if (strcasecmp(childNode.name(), "transform") == 0) {
+			if (strcasecmp(childNode.name(), "transform") == 0) {
 				pugi::xml_attribute transformAttribute = childNode.attribute("id");
 
 				pugi::xml_attribute levelReqAttribute = childNode.attribute("levelReq");
