@@ -3310,8 +3310,8 @@ void Game::playerWhisper(Player* player, const std::string& text)
 
 bool Game::playerYell(Player* player, const std::string& text)
 {
-	if (player->getLevel() == 1) {
-		player->sendTextMessage(MESSAGE_STATUS_SMALL, "You may not yell as long as you are on level 1.");
+	if (player->getLevel() == 50) {
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, "You may not yell as long as you dont have 50 level.");
 		return false;
 	}
 
