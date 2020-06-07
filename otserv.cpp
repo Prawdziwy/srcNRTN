@@ -176,7 +176,7 @@ void mainLoader(int, char*[], ServiceManager* services)
 	if (g_database.getMaxPacketSize() < 104857600) {
 		std::cout << "> Max MYSQL Query size below 100MB might generate undefined behaviour." << std::endl;
 		std::cout << "> Do you want to continue? Press enter to continue." << std::endl;
-		getchar();
+		//getchar();
 	}
 
 	// run database manager
