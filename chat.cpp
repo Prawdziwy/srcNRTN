@@ -29,9 +29,8 @@ extern Game g_game;
 
 bool PrivateChatChannel::isInvited(uint32_t guid) const
 {
-	if (guid == getOwner()) {
+	if (guid == getOwner())
 		return true;
-	}
 	return invites.find(guid) != invites.end();
 }
 
@@ -444,17 +443,14 @@ bool Chat::removeUserFromChannel(const Player& player, uint16_t channelId)
 
 void Chat::removeUserFromAllChannels(const Player& player)
 {
-	for (auto& it : normalChannels) {
+	for (auto& it : normalChannels)
 		it.second.removeUser(player);
-	}
 
-	for (auto& it : partyChannels) {
+	for (auto& it : partyChannels)
 		it.second.removeUser(player);
-	}
 
-	for (auto& it : guildChannels) {
+	for (auto& it : guildChannels)
 		it.second.removeUser(player);
-	}
 
 	auto it = privateChannels.begin();
 	while (it != privateChannels.end()) {
@@ -473,9 +469,8 @@ void Chat::removeUserFromAllChannels(const Player& player)
 bool Chat::talkToChannel(const Player& player, SpeakClasses type, const std::string& text, uint16_t channelId)
 {
 	ChatChannel* channel = getChannel(player, channelId);
-	if (!channel) {
+	if (!channel)
 		return false;
-	}
 
 	if (channelId == CHANNEL_GUILD) {
 		const GuildRank* rank = player.getGuildRank();
@@ -597,18 +592,16 @@ ChatChannel* Chat::getChannel(const Player& player, uint16_t channelId)
 ChatChannel* Chat::getGuildChannelById(uint32_t guildId)
 {
 	auto it = guildChannels.find(guildId);
-	if (it == guildChannels.end()) {
+	if (it == guildChannels.end())
 		return nullptr;
-	}
 	return &it->second;
 }
 
 ChatChannel* Chat::getChannelById(uint16_t channelId)
 {
 	auto it = normalChannels.find(channelId);
-	if (it == normalChannels.end()) {
+	if (it == normalChannels.end())
 		return nullptr;
-	}
 	return &it->second;
 }
 
