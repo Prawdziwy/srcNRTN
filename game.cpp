@@ -3310,8 +3310,12 @@ void Game::playerWhisper(Player* player, const std::string& text)
 
 bool Game::playerYell(Player* player, const std::string& text)
 {
-	if (player->getLevel() == 50) {
-		player->sendTextMessage(MESSAGE_STATUS_SMALL, "You may not yell as long as you dont have 50 level.");
+	uint32_t minimumLevel = g_config.getNumber(ConfigManager::YELL_MINIMUM_LEVEL);
+	if (player->getLevel() < minimumLevel) {
+		std::ostringstream s;
+		s << "You may not yell as long as you dont have " << minimumLevel << " level.";
+		std::string msg(s.str());
+		player->sendTextMessage(MESSAGE_STATUS_SMALL, msg);
 		return false;
 	}
 
