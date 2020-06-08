@@ -754,11 +754,10 @@ void Creature::changeHealth(int32_t healthChange, bool sendHealthChange/* = true
 {
 	int32_t oldHealth = health;
 
-	if (healthChange > 0) {
+	if (healthChange > 0)
 		health += std::min<int32_t>(healthChange, getMaxHealth() - health);
-	} else {
+	else
 		health = std::max<int32_t>(0, health + healthChange);
-	}
 
 	if (sendHealthChange && oldHealth != health) {
 		g_game.addCreatureHealth(this);
@@ -768,18 +767,16 @@ void Creature::changeHealth(int32_t healthChange, bool sendHealthChange/* = true
 void Creature::gainHealth(Creature* healer, int32_t healthGain)
 {
 	changeHealth(healthGain);
-	if (healer) {
+	if (healer)
 		healer->onTargetCreatureGainHealth(this, healthGain);
-	}
 }
 
 void Creature::drainHealth(Creature* attacker, int32_t damage)
 {
 	changeHealth(-damage, false);
 
-	if (attacker) {
+	if (attacker)
 		attacker->onAttackedCreatureDrainHealth(this, damage);
-	}
 }
 
 BlockType_t Creature::blockHit(Creature* attacker, CombatType_t combatType, int32_t& damage,
@@ -958,9 +955,8 @@ double Creature::getDamageRatio(Creature* attacker) const
 		}
 	}
 
-	if (totalDamage == 0) {
+	if (totalDamage == 0)
 		return 0;
-	}
 
 	return (static_cast<double>(attackerDamage) / totalDamage);
 }
@@ -972,9 +968,8 @@ uint64_t Creature::getGainedExperience(Creature* attacker) const
 
 void Creature::addDamagePoints(Creature* attacker, int32_t damagePoints)
 {
-	if (damagePoints <= 0) {
+	if (damagePoints <= 0)
 		return;
-	}
 
 	uint32_t attackerId = attacker->id;
 
@@ -1014,9 +1009,8 @@ void Creature::onEndCondition(ConditionType_t)
 void Creature::onTickCondition(ConditionType_t type, bool& bRemove)
 {
 	const MagicField* field = getTile()->getFieldItem();
-	if (!field) {
+	if (!field)
 		return;
-	}
 
 	switch (type) {
 		case CONDITION_FIRE:
@@ -1055,7 +1049,7 @@ void Creature::onCombatRemoveCondition(Condition* condition)
 
 void Creature::onAttacked()
 {
-	//
+	//nothing yet
 }
 
 void Creature::onAttackedCreatureDrainHealth(Creature* target, int32_t points)
@@ -1065,9 +1059,8 @@ void Creature::onAttackedCreatureDrainHealth(Creature* target, int32_t points)
 
 bool Creature::onKilledCreature(Creature* target, bool)
 {
-	if (master) {
+	if (master)
 		master->onKilledCreature(target);
-	}
 
 	//scripting event - onKill
 	const CreatureEventList& killEvents = getCreatureEvents(CREATURE_EVENT_KILL);
@@ -1079,9 +1072,8 @@ bool Creature::onKilledCreature(Creature* target, bool)
 
 void Creature::onGainExperience(uint64_t gainExp, Creature* target)
 {
-	if (gainExp == 0 || !master) {
+	if (gainExp == 0 || !master)
 		return;
-	}
 
 	gainExp /= 2;
 	master->onGainExperience(gainExp, target);
@@ -1092,9 +1084,8 @@ void Creature::onGainExperience(uint64_t gainExp, Creature* target)
 }
 
 bool Creature::setMaster(Creature* newMaster) {
-	if (!newMaster && !master) {
+	if (!newMaster && !master)
 		return false;
-	}
 
 	if (newMaster) {
 		incrementReferenceCounter();
@@ -1116,9 +1107,8 @@ bool Creature::setMaster(Creature* newMaster) {
 
 bool Creature::addCondition(Condition* condition, bool force/* = false*/)
 {
-	if (condition == nullptr) {
+	if (condition == nullptr)
 		return false;
-	}
 
 	if (!force && condition->getType() == CONDITION_HASTE && hasCondition(CONDITION_PARALYZE)) {
 		int64_t walkDelay = getWalkDelay();
