@@ -932,7 +932,12 @@ bool Creature::setFollowCreature(Creature* creature)
 		hasFollowPath = false;
 		forceUpdateFollowPath = false;
 		followCreature = creature;
-		isUpdatingPath = true;
+		if (getMonster()) {
+			isUpdatingPath = false;
+			goToFollowCreature();
+		} else {
+			isUpdatingPath = true;
+		}
 	} else {
 		isUpdatingPath = false;
 		followCreature = nullptr;
