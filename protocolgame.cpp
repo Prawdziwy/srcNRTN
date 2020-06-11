@@ -1870,6 +1870,9 @@ void ProtocolGame::sendAddCreature(const Creature* creature, const Position& pos
 	} else {
 		playermsg.addByte(0x00);
 	}
+	
+	//gameworld settings
+	AddWorldLight(g_game.getWorldLightInfo());
 
 	writeToOutputBuffer(playermsg);
 
@@ -1885,9 +1888,6 @@ void ProtocolGame::sendAddCreature(const Creature* creature, const Position& pos
 
 	sendStats();
 	sendSkills();
-
-	//gameworld light-settings
-	sendWorldLight(g_game.getWorldLightInfo());
 
 	//player light level
 	sendCreatureLight(creature);
