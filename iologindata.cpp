@@ -678,12 +678,12 @@ bool IOLoginData::savePlayer(Player* player)
 	query << "`health` = " << player->health << ',';
 	query << "`healthmax` = " << player->healthMax << ',';
 	query << "`experience` = " << player->experience << ',';
-	query << "`lookbody` = " << static_cast<uint32_t>(player->defaultOutfit.lookBody) << ',';
-	query << "`lookfeet` = " << static_cast<uint32_t>(player->defaultOutfit.lookFeet) << ',';
-	query << "`lookhead` = " << static_cast<uint32_t>(player->defaultOutfit.lookHead) << ',';
-	query << "`looklegs` = " << static_cast<uint32_t>(player->defaultOutfit.lookLegs) << ',';
+	query << "`lookbody` = " << static_cast<uint16_t>(player->defaultOutfit.lookBody) << ',';
+	query << "`lookfeet` = " << static_cast<uint16_t>(player->defaultOutfit.lookFeet) << ',';
+	query << "`lookhead` = " << static_cast<uint16_t>(player->defaultOutfit.lookHead) << ',';
+	query << "`looklegs` = " << static_cast<uint16_t>(player->defaultOutfit.lookLegs) << ',';
 	query << "`looktype` = " << player->defaultOutfit.lookType << ',';
-	query << "`lookaddons` = " << static_cast<uint32_t>(player->defaultOutfit.lookAddons) << ',';
+	query << "`lookaddons` = " << static_cast<uint16_t>(player->defaultOutfit.lookAddons) << ',';
 	query << "`maglevel` = " << player->magLevel << ',';
 	query << "`mana` = " << player->mana << ',';
 	query << "`manamax` = " << player->manaMax << ',';
@@ -760,7 +760,7 @@ bool IOLoginData::savePlayer(Player* player)
 		} else if (player->skull == SKULL_BLACK) {
 			skull = SKULL_BLACK;
 		}
-		query << "`skull` = " << static_cast<int64_t>(skull) << ',';
+		query << "`skull` = " << static_cast<uint16_t>(skull) << ',';
 	}
 
 	query << "`lastlogout` = " << player->getLastLogout() << ',';
@@ -781,15 +781,15 @@ bool IOLoginData::savePlayer(Player* player)
 	query << "`skill_shielding_tries` = " << player->skills[SKILL_SHIELD].tries << ',';
 	query << "`skill_fishing` = " << player->skills[SKILL_FISHING].level << ',';
 	query << "`skill_fishing_tries` = " << player->skills[SKILL_FISHING].tries << ',';
-	query << "`direction` = " << static_cast<uint16_t> (player->getDirection()) << ',';
+	query << "`direction` = " << static_cast<uint16_t>(player->getDirection()) << ',';
 	query << "`special_rate_loot` = " << static_cast<uint16_t>(player->getSpecialLootRate()) << ",";
 	query << "`transform` = " << static_cast<uint16_t>(player->getTransform()) << ",";
 
 	if (!player->isOffline()) {
 		query << "`onlinetime` = `onlinetime` + " << (time(nullptr) - player->lastLoginSaved) << ',';
 	}
-	query << "`blessings` = " << static_cast<uint32_t>(player->blessings) << ',';
-	query << "`blessingDrop` = " << static_cast<uint32_t>(player->blessingDrop);
+	query << "`blessings` = " << static_cast<uint16_t>(player->blessings) << ',';
+	query << "`blessingDrop` = " << static_cast<uint16_t>(player->blessingDrop);
 	query << " WHERE `id` = " << player->getGUID();
 
 	DBTransaction transaction(&g_database);
