@@ -1,0 +1,63 @@
+[33ma6ada49[m Connection small change
+[33m3e956d5[m Fix possible AmbienteActualBrightness = -1 debug
+[33m273743b[m Map few changes
+[33me0b6896[m Fix battlelist being unfocusable
+[33mecb06db[m Fix player id for luascripts.
+[33m80c7e0c[m Fix saving character data by keeping id the same as guid for players.
+[33m5019d80[m Npc, monster autoid change
+[33m610e51f[m Fix MoveEvent revscripts unsafe code
+[33m3336efc[m MoveEvent luascript changes
+[33m41898ef[m Chat style changes, creature small fix
+[33m1cf97de[m Few unimportant style changes
+[33mb5856e5[m game yell_minimum_level implement
+[33mf12b0f6[m configmanager new integer YELL_MINMUM_LEVEL
+[33m6cb096b[m Vocation small change
+[33mcfd526f[m dev otserv changes
+[33mf9189c6[m getchar otserv small change
+[33me5bd11e[m Small monsters map change
+[33ma0ca7b7[m getMonsterTypes implement
+[33me09c87c[m Small yell change
+[33m34382ff[m style: Extern g_game not necessary
+[33m969f539[m Fix minor warning with cast
+[33md824f7f[m Fix Item::equals to compare attributes
+[33m39f12ab[m Use getMaxHealth insted of getHealth when advancing
+[33mf48f5ed[m Fix stacking unpassable movable item
+[33m4515134[m Added max lootchance warning
+[33m5613cc7[m Remove unused constant
+[33mcf28416[m Fix crash when reloading invalid CreatureEvents
+[33m3f7f6b9[m removeInvalidEvents implementation
+[33m107a82d[m luascript blessingdrop implement
+[33mbdcf769[m BlessingDrop implement, few changes
+[33mb10c8e4[m Replaced hardcoded player slot position
+[33m7793d59[m add walkthrough update when crossing PROTECTION_LEVEL
+[33m3464ef1[m Fix client crash when container has no name
+[33m5c83baa[m New function in container implement
+[33m25cc4aa[m Fix disable defense serialization
+[33m2c602ab[m small integer changes
+[33m2b255ac[m clang-tidy style fixes
+[33mc09aa13[m Fixes in game, iologindata, weapons
+[33me71722e[m Few changes in game, iologindata
+[33m0546ecb[m Few changes
+[33mdfc397a[m Items initdamage change
+[33mf1097a4[m initDamage
+[33ma683c39[m Avoid inflicting condition
+[33m698a765[m Few fixes, improves
+[33me3ee132[m Condition changes, aggresive
+[33m9b35e36[m Container query fix, const small change
+[33m6ac9754[m Fix group error
+[33me5bc54d[m Small change in const
+[33m39a2d10[m Small fix closer summon
+[33m9bb5091[m Remove a unnecessary lines
+[33m3799fa7[m CloserSummon implementation in monster
+[33me1d7998[m CloserSummon implementation monsters
+[33mb3edc93[m Small fix, misspelled
+[33mf1d4c0f[m Saveitemid flag item, few fixes, combat improve
+[33m36a9cda[m Small fixes, monster flag for dummies
+[33mb7b5a1c[m Small fixes
+[33mf5f0c0e[m Spells Combat Optimization, last fixes
+[33m507d195[m Combat luascript changes
+[33m3b62860[m AddEvent changes combat
+[33mdc343ef[m Few improves, fist fix, dontblockwalk.
+[33m129a202[m Source changes, improvements. A few functions implemented.
+[33m9425917[m First Implementation, source from nekiro
+[33mf96adf4[m first commit
