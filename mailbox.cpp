@@ -104,6 +104,7 @@ bool Mailbox::sendItem(Item* item) const
 	Player* player = g_game.getPlayerByName(receiver);
 	if (player) {
 		DepotLocker* depotLocker = player->getDepotLocker(depotId);
+		player->setLastDepotId(static_cast<int16_t>(depotId));
 		if (depotLocker) {
 			if (g_game.internalMoveItem(item->getParent(), depotLocker, INDEX_WHEREEVER, item, item->getItemCount(), nullptr) == RETURNVALUE_NOERROR) {
 				g_game.transformItem(item, item->getID() + 1);
@@ -118,6 +119,7 @@ bool Mailbox::sendItem(Item* item) const
 		}
 
 		DepotLocker* depotLocker = tmpPlayer.getDepotLocker(depotId);
+		tmpPlayer.setLastDepotId(static_cast<int16_t>(depotId));
 		if (depotLocker) {
 			if (g_game.internalMoveItem(item->getParent(), depotLocker, INDEX_WHEREEVER, item, item->getItemCount(), nullptr) == RETURNVALUE_NOERROR) {
 				g_game.transformItem(item, item->getID() + 1);

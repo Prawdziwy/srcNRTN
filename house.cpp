@@ -256,6 +256,7 @@ bool House::transferToDepot(Player* player) const
 	}
 
 	DepotLocker* depot = player->getDepotLocker(townId);
+	player->setLastDepotId(static_cast<int16_t>(townId));
 	for (Item* item : moveItemList) {
 		g_game.internalMoveItem(item->getParent(), depot, INDEX_WHEREEVER, item, item->getItemCount(), nullptr, FLAG_NOLIMIT);
 	}
@@ -721,6 +722,7 @@ void Houses::payHouses(RentPeriod_t rentPeriod) const
 				ss << "Warning! \nThe " << period << " rent of " << house->getRent() << " gold for your house \"" << house->getName() << "\" is payable. Have it within " << daysLeft << " days or you will lose this house.";
 				letter->setText(ss.str());
 				DepotLocker* depot = player.getDepotLocker(town->getID());
+				player.setLastDepotId(static_cast<int16_t>(town->getID()));
 				if (depot) {
 					g_game.internalAddItem(depot, letter, INDEX_WHEREEVER, FLAG_NOLIMIT);
 				}
