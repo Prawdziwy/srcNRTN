@@ -1120,7 +1120,7 @@ class Player final : public Creature, public Cylinder
 		std::list<ShopInfo> shopItemList;
 
 		std::unordered_set<std::string> learnedInstantSpellList;
-		std::forward_list<Party*> invitePartyList;
+		std::vector<Party*> invitePartyList;
 		std::forward_list<Condition*> storedConditionList; // TODO: This variable is only temporarily used when logging in, get rid of it somehow
 
 		std::string name;
