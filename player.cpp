@@ -3791,13 +3791,13 @@ double Player::getLostPercent() const
 void Player::learnInstantSpell(const std::string& spellName)
 {
 	if (!hasLearnedInstantSpell(spellName)) {
-		learnedInstantSpellList.push_front(spellName);
+		learnedInstantSpellList.emplace(asLowerCaseString(spellName));
 	}
 }
 
 void Player::forgetInstantSpell(const std::string& spellName)
 {
-	learnedInstantSpellList.remove(spellName);
+	learnedInstantSpellList.erase(asLowerCaseString(spellName));
 }
 
 bool Player::hasLearnedInstantSpell(const std::string& spellName) const
@@ -3810,10 +3810,9 @@ bool Player::hasLearnedInstantSpell(const std::string& spellName) const
 		return true;
 	}
 
-	for (const auto& learnedSpellName : learnedInstantSpellList) {
-		if (strcasecmp(learnedSpellName.c_str(), spellName.c_str()) == 0) {
-			return true;
-		}
+	auto it = learnedInstantSpellList.find(asLowerCaseString(spellName));
+	if (it != learnedInstantSpellList.end()) {
+		return true;
 	}
 	return false;
 }
