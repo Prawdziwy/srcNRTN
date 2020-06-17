@@ -497,6 +497,7 @@ class Game
 		bool addUniqueItem(uint16_t uniqueId, Item* item);
 		void removeUniqueItem(uint16_t uniqueId);
 
+		bool reloadCreatureScripts(bool fromLua = false, bool reload = true);
 		bool reload(ReloadTypes_t reloadType);
 
 		Groups groups;

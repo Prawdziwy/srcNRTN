@@ -1394,10 +1394,8 @@ bool Creature::registerCreatureEvent(const std::string& name)
 
 	CreatureEventType_t type = event->getEventType();
 	if (hasEventRegistered(type)) {
-		for (CreatureEvent* creatureEvent : eventsList) {
-			if (creatureEvent == event) {
-				return false;
-			}
+		if (std::find(eventsList.begin(), eventsList.end(), event) != eventsList.end()) {
+			return false;
 		}
 	} else {
 		scriptEventsBitField |= static_cast<uint32_t>(1) << type;
@@ -1421,8 +1419,8 @@ bool Creature::unregisterCreatureEvent(const std::string& name)
 
 	bool resetTypeBit = true;
 
-	auto it = eventsList.begin(), end = eventsList.end();
-	while (it != end) {
+	auto it = eventsList.begin();
+	while (it != eventsList.end()) {
 		CreatureEvent* curEvent = *it;
 		if (curEvent == event) {
 			it = eventsList.erase(it);
