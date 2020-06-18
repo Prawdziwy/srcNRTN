@@ -286,7 +286,7 @@ class Creature : virtual public Thing
 			return master;
 		}
 
-		const std::list<Creature*>& getSummons() const {
+		const std::vector<Creature*>& getSummons() const {
 			return summons;
 		}
 
@@ -473,7 +473,7 @@ class Creature : virtual public Thing
 		using CountMap = std::map<uint32_t, CountBlock_t>;
 		CountMap damageMap;
 
-		std::list<Creature*> summons;
+		std::vector<Creature*> summons;
 		CreatureEventList eventsList;
 		ConditionList conditions;
 
