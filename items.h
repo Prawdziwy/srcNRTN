@@ -229,6 +229,9 @@ class ItemType
 		bool isFluidContainer() const {
 			return group == ITEM_GROUP_FLUID;
 		}
+		bool isFluid() const {
+			return (group == ITEM_GROUP_SPLASH || group == ITEM_GROUP_FLUID);
+		}
 
 		bool isDoor() const {
 			return (type == ITEM_TYPE_DOOR);
