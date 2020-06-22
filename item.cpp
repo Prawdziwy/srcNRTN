@@ -255,7 +255,10 @@ void Item::setID(uint16_t newid)
 	uint32_t newDuration = it.decayTime * 1000;
 
 	if (newDuration == 0 && !it.stopTime && it.decayTo < 0) {
-		removeAttribute(ITEM_ATTRIBUTE_DECAYSTATE);
+		//We'll get called startDecay anyway so let's schedule it - actually not in all casses
+		if (hasAttribute(ITEM_ATTRIBUTE_DECAYSTATE)) {
+			removeAttribute(ITEM_ATTRIBUTE_DECAYSTATE);
+		}
 		removeAttribute(ITEM_ATTRIBUTE_DURATION);
 	}
 
