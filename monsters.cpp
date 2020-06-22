@@ -1372,8 +1372,8 @@ MonsterType* Monsters::getMonsterType(const std::string& name)
 	return &it->second;
 }
 
-void Monsters::addMonsterType(const std::string& name, MonsterType* mType)
+MonsterType* Monsters::addMonsterType(const std::string& name)
 {
-	mType = &monsters[asLowerCaseString(name)];
+	return &monsters[asLowerCaseString(name)];
 }
 
