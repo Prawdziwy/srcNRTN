@@ -4378,11 +4378,20 @@ int LuaScriptInterface::luaGameCreateContainer(lua_State* L)
 
 int LuaScriptInterface::luaGameCreateMonster(lua_State* L)
 {
-	// Game.createMonster(monsterName, position[, extended = false[, force = false]])
+	// Game.createMonster(monsterName, position[, extended = false[, force = false[, master = nil]]])
 	Monster* monster = Monster::createMonster(getString(L, 1));
 	if (!monster) {
 		lua_pushnil(L);
 		return 1;
+	}
+	
+	if (lua_gettop(L) >= 5) {
+		Creature* master = getCreature(L, 5);
+		if (master) {
+			monster->setMaster(master);
+			monster->setDropLoot(false);
+			monster->setSkillLoss(false);
+		}
 	}
 
 	const Position& position = getPosition(L, 2);
@@ -6975,6 +6984,26 @@ int LuaScriptInterface::luaCreatureSetMaster(lua_State* L)
 	}
 
 	pushBoolean(L, creature->setMaster(getCreature(L, 2)));
+	
+	if (Monster* monster = creature->getMonster()) {
+		//Update targets/friends list cache when monster became summon/non-summon
+		monster->clearTargetList();
+		monster->clearFriendList();
+		monster->updateTargetList();
+		monster->updateIdleStatus();
+
+		//Update spectators target/friends list cache when monster became summon/non-summon
+		SpectatorVec spectators;
+		g_game.map.getSpectators(spectators, monster->getPosition(), true);
+		for (Creature* spectator : spectators) {
+			if (Monster* specMonster = spectator->getMonster()) {
+				if (monster != specMonster) {
+					specMonster->onCreatureLeave(monster);
+					specMonster->onCreatureEnter(monster);
+				}
+			}
+		}
+	}
 	return 1;
 }
 
