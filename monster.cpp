@@ -178,6 +178,7 @@ void Monster::onRemoveCreature(Creature* creature, bool isLogout)
 
 	if (creature == this) {
 		if (spawn) {
+			spawn->removeMonster(this);
 			spawn->startSpawnCheck();
 		}
 
