@@ -34,6 +34,16 @@ using Identifier = std::array<char, 4>;
 struct Node
 {
 	using ChildrenVector = std::vector<Node>;
+	
+	Node() = default;
+
+	// non-copyable
+	Node(const Node&) = delete;
+	Node& operator=(const Node&) = delete;
+
+	// moveable
+	Node(Node&& rhs) noexcept : children(std::move(rhs.children)), propsBegin(rhs.propsBegin), propsEnd(rhs.propsEnd), type(rhs.type) {}
+	Node& operator=(const Node&&) = delete;
 
 	ChildrenVector children;
 	ContentIt      propsBegin;
