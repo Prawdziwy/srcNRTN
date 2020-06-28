@@ -546,7 +546,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	itemMap.clear();
 
 	query.clear();
-	query.append("SELECT `depotlockeritems` FROM `players` WHERE `id` = ").appendInt(player->getGUID());
+	query.append("SELECT `depotitems` FROM `players` WHERE `id` = ").appendInt(player->getGUID());
 	if ((result = g_database.storeQuery(query))) {
 		attr = result->getStream("depotitems", attrSize);
 		propStream.init(attr, attrSize);
@@ -655,6 +655,39 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 		}
 	}
 	return true;
+}
+
+bool IOLoginData::saveItems2(const Player* player, const ItemBlockList& itemList, std::stringExtended& query, PropWriteStream& propWriteStream)
+{
+	int amountIT = 0;
+	std::stringExtended ss(64);
+
+	int32_t runningId = 100;
+	for (const auto& it : itemList) {
+		if (it.first)
+			amountIT += 1;
+	}
+	int amountIT2 = 0;
+	for (const auto& it : itemList) {
+		amountIT2 += 1;
+		int32_t pid = it.first;
+		Item* item = it.second;
+		++runningId;
+
+		propWriteStream.clear();
+		item->serializeAttr(propWriteStream);
+
+		size_t attributesSize;
+		const char* attributes = propWriteStream.getStream(attributesSize);
+
+		ss.append("(").appendInt(player->getGUID()).append(",").appendInt(pid).append(",").appendInt(runningId).append(",").appendInt(item->getID()).append(",").appendInt(item->getSubType()).append(",").append(g_database.escapeBlob(attributes, attributesSize)).append(")");
+
+		if(amountIT2 != amountIT)
+			ss.append(", ");
+
+		query.append(ss);
+	}
+	return g_database.executeQuery(query);
 }
 
 bool IOLoginData::savePlayer(Player* player)
@@ -821,6 +854,21 @@ bool IOLoginData::savePlayer(Player* player)
 	if (!saveItems(player, itemList, query, propWriteStream, "items")) {
 		return false;
 	}
+	
+	//item saving
+	query.clear();
+	
+	query.append("DELETE FROM `player_items` WHERE `player_id` = ").appendInt(player->getGUID());
+	if (!g_database.executeQuery(query)) {
+		return false;
+	}
+	query.clear();
+
+	query.append("INSERT INTO `player_items` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+
+	if (!saveItems2(player, itemList, query, propWriteStream)) {
+		return false;
+	}
 
 	if (player->lastDepotId != -1) {
 		//save depot items
@@ -835,6 +883,39 @@ bool IOLoginData::savePlayer(Player* player)
 
 		propWriteStream.clear();
 		if (!saveItems(player, itemList, query, propWriteStream, "depotitems")) {
+			return false;
+		}
+	}
+	
+	query.clear();
+	query.append("DELETE FROM `player_storage` WHERE `player_id` = ").appendInt(player->getGUID());
+	if (!g_database.executeQuery(query)) {
+		return false;
+	}
+
+	query.clear();
+	if(!player->storageMap.empty()) {
+		std::stringExtended storageQuery(64);
+		storageQuery.clear();
+
+		storageQuery.append("INSERT INTO `player_storage` (`player_id`, `key`, `value`) VALUES ");
+		player->genReservedStorageRange();
+		int Storage1 = 0;
+		int Storage2 = 0;
+		for (const auto& it : player->storageMap) {
+			if (it.first)
+				Storage1 += 1;
+		}
+
+		for (const auto& it : player->storageMap) {
+			Storage2 += 1;
+			query.append("(").appendInt(player->getGUID()).append(",").appendInt(it.first).append(",").appendInt(it.second).append(")");
+			if(Storage2 != Storage1)
+				query.append(", ");
+			storageQuery.append(query);
+		}
+
+		if (!g_database.executeQuery(storageQuery)) {
 			return false;
 		}
 	}
