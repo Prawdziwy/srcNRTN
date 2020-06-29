@@ -74,7 +74,7 @@ Player::~Player()
 	setEditHouse(nullptr);
 }
 
-bool Player::setVocation(uint16_t vocId)
+bool Player::setVocation(uint16_t vocId, bool internal /*=false*/)
 {
 	Vocation* voc = g_vocations.getVocation(vocId);
 	if (!voc) {
