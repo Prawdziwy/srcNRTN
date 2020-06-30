@@ -809,9 +809,10 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 		mType->info.skull = getSkullType(asLowerCaseString(attr.as_string()));
 	}
 
-	if ((attr = monsterNode.attribute("saga"))) 
+	if ((attr = monsterNode.attribute("saga"))) {
 		mType->info.ignoreStorageId = pugi::cast<uint32_t>(attr.value());
-	if ((attr = monsterNode.attribute("value")))
+		mType->info.isSagaMonster = true;
+	} if ((attr = monsterNode.attribute("value")))
 		mType->info.ignoreStorageValue = pugi::cast<uint32_t>(attr.value());
 
 	if ((attr = monsterNode.attribute("script"))) {

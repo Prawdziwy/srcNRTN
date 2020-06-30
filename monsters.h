@@ -151,6 +151,7 @@ class MonsterType
 
 		double normalChance, weekendChance;
 
+		bool isSagaMonster = false;
 		bool canPushItems = false;
 		bool canPushCreatures = false;
 		bool pushable = true;
