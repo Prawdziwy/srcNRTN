@@ -12021,10 +12021,15 @@ int LuaScriptInterface::luaMonsterTypeCreate(lua_State* L)
 
 int LuaScriptInterface::luaMonsterTypeIsSagaMonster(lua_State* L)
 {
-	// get: monsterType:isSagaMonster()
+	// get: monsterType:isSagaMonster() set: monsterType:isSagaMonster(bool)
 	MonsterType* monsterType = getUserdata<MonsterType>(L, 1);
 	if (monsterType) {
-		pushBoolean(L, monsterType->info.isSagaMonster);
+		if (lua_gettop(L) == 1) {
+			pushBoolean(L, monsterType->info.isSagaMonster);
+		} else {
+			monsterType->info.isSagaMonster = getBoolean(L, 2);
+			pushBoolean(L, true);
+		}
 	} else {
 		lua_pushnil(L);
 	}
