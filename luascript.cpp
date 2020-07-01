@@ -2582,6 +2582,7 @@ void LuaScriptInterface::registerFunctions()
 	registerClass("MonsterType", "", LuaScriptInterface::luaMonsterTypeCreate);
 	registerMetaMethod("MonsterType", "__eq", LuaScriptInterface::luaUserdataCompare);
 
+	registerMethod("MonsterType", "isSagaMonster", LuaScriptInterface::luaMonsterTypeIsSagaMonster);
 	registerMethod("MonsterType", "isAttackable", LuaScriptInterface::luaMonsterTypeIsAttackable);
 	registerMethod("MonsterType", "isConvinceable", LuaScriptInterface::luaMonsterTypeIsConvinceable);
 	registerMethod("MonsterType", "isSummonable", LuaScriptInterface::luaMonsterTypeIsSummonable);
@@ -12012,6 +12013,18 @@ int LuaScriptInterface::luaMonsterTypeCreate(lua_State* L)
 	if (monsterType) {
 		pushUserdata<MonsterType>(L, monsterType);
 		setMetatable(L, -1, "MonsterType");
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaMonsterTypeIsSagaMonster(lua_State* L)
+{
+	// get: monsterType:isSagaMonster()
+	MonsterType* monsterType = getUserdata<MonsterType>(L, 1);
+	if (monsterType) {
+		pushBoolean(L, monsterType->info.isSagaMonster);
 	} else {
 		lua_pushnil(L);
 	}
