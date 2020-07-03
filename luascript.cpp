@@ -8456,7 +8456,7 @@ int LuaScriptInterface::luaPlayerGetTransform(lua_State* L)
 int LuaScriptInterface::luaPlayerSetTransform(lua_State* L)
 {
 	// player:setTransform(id)
-	uint16_t transform = getNumber<uint16_t>(L, 2);
+	uint8_t transform = getNumber<uint8_t>(L, 2);
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
 		player->setTransform(transform);
