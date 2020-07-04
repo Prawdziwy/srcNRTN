@@ -94,10 +94,15 @@ bool Vocations::loadFromXml()
 		if ((attr = vocationNode.attribute("weapon"))) {
 			voc.weapon = attr.as_string();
 		}
+
+		if ((attr = vocationNode.attribute("power"))) {
+			voc.power = pugi::cast<float>(attr.value());
+		}
 		
 		if ((attr = vocationNode.attribute("looktype"))) {
 			voc.looktype = pugi::cast<uint32_t>(attr.value());
 		}
+
 
 		if ((attr = vocationNode.attribute("fromvoc"))) {
 			voc.fromVocation = pugi::cast<uint32_t>(attr.value());
@@ -118,6 +123,30 @@ bool Vocations::loadFromXml()
 			voc.skillMultipliers[3] = 2.0;
 			voc.skillMultipliers[4] = 1.1;
 		}
+		for (int i = 0; i < 11; i++) {
+			float magDamageValue;
+			if (voc.weapon == "sword" || voc.weapon == "glove") {
+				float meleeDamageValue = voc.power*(i*2);
+				magDamageValue = voc.power*(i*3);
+				if (meleeDamageValue < 1)
+					meleeDamageValue = 1.0f;
+				if (magDamageValue < 1)
+					magDamageValue = 1.0f;
+				voc.meleeDamageMultiplierTransform[i] = meleeDamageValue;
+				voc.distDamageMultiplierTransform[i] = 1.0f;
+				voc.magDamageMultiplierTransform[i] = magDamageValue;
+			} else {
+				float distDamageValue = voc.power*(i*1.8);
+				magDamageValue = voc.power*(i*2.5);
+				if (distDamageValue < 1)
+					distDamageValue = 1.0f;
+				if (magDamageValue < 1)
+					magDamageValue = 1.0f;
+				voc.meleeDamageMultiplierTransform[i] = 1.0f;
+				voc.distDamageMultiplierTransform[i] = distDamageValue;
+				voc.magDamageMultiplierTransform[i] = magDamageValue;
+			}
+		}
 		
 		voc.meleeDamageMultiplier = 1.0f;
 		voc.distDamageMultiplier = 1.0f;
@@ -136,16 +165,6 @@ bool Vocations::loadFromXml()
 				pugi::xml_attribute newLooktypeAttribute = childNode.attribute("newLooktype");
 				if (newLooktypeAttribute) {
 					voc.newLooktype[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(newLooktypeAttribute.value());
-				}
-
-				pugi::xml_attribute meleeDamageMultiplierTAttribute = childNode.attribute("meleeDamageT");
-				if (meleeDamageMultiplierTAttribute) {
-					voc.meleeDamageMultiplierT[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<float>(meleeDamageMultiplierTAttribute.value());
-				}
-
-				pugi::xml_attribute distDamageMultiplierTAttribute = childNode.attribute("distDamageMultiplierT");
-				if (distDamageMultiplierTAttribute) {
-					voc.distDamageMultiplierT[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<float>(distDamageMultiplierTAttribute.value());
 				}
 
 				pugi::xml_attribute additionalHealthAttribute = childNode.attribute("additionalHealth");

@@ -94,14 +94,15 @@ class Vocation
 		float defenseMultiplier = 1.0f;
 		float armorMultiplier = 1.0f;
 
-		uint64_t levelReq[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint64_t newLooktype[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		float meleeDamageMultiplierT[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-		float distDamageMultiplierT[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-		uint64_t additionalHealth[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint64_t additionalMana[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint64_t effect[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint64_t storage[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint32_t levelReq[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint16_t newLooktype[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		float meleeDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+		float distDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+		float magDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+		uint32_t additionalHealth[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint32_t additionalMana[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint32_t effect[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint32_t storage[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 	private:
 		friend class Vocations;
@@ -114,6 +115,7 @@ class Vocation
 
 		float skillMultipliers[SKILL_LAST + 1] = {1.5f, 2.0f, 2.0f, 2.0f, 2.0f, 1.5f, 1.1f};
 		float manaMultiplier = 4.0f;
+		float power = 1.0f;
 
 		uint32_t gainHealthTicks = 6;
 		uint32_t gainHealthAmount = 1;
