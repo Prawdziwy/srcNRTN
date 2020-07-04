@@ -622,7 +622,7 @@ int32_t WeaponMelee::getElementDamage(const Player* player, const Creature*, con
 	int32_t maxValue = Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor);
 
 	if (transformId > 0) {
-		return -normal_random(0, static_cast<int32_t>(maxValue * player->getVocation()->meleeDamageMultiplierT[transformId]));
+		return -normal_random(0, static_cast<int32_t>(maxValue * player->getVocation()->meleeDamageMultiplierTransform[transformId]));
 	} else {
 		return -normal_random(0, static_cast<int32_t>(maxValue * player->getVocation()->meleeDamageMultiplier));
 	}
@@ -637,7 +637,7 @@ int32_t WeaponMelee::getWeaponDamage(const Player* player, const Creature*, cons
 	int32_t maxValue;
 	uint16_t transformId = player->getTransform();
 	if (transformId > 0) {
-		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->meleeDamageMultiplierT[transformId]);
+		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->meleeDamageMultiplierTransform[transformId]);
 	} else {
 		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->meleeDamageMultiplier);
 	}
@@ -881,7 +881,7 @@ int32_t WeaponDistance::getWeaponDamage(const Player* player, const Creature* ta
 	int32_t maxValue;
 
 	if (transformId > 0) {
-		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->distDamageMultiplierT[transformId]);
+		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->distDamageMultiplierTransform[transformId]);
 	} else {
 		maxValue = static_cast<int32_t>(Weapons::getMaxWeaponDamage(player->getLevel(), attackSkill, attackValue, attackFactor) * player->getVocation()->distDamageMultiplier);
 	}
