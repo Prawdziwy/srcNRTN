@@ -3136,8 +3136,10 @@ void Game::playerSay(uint32_t playerId, uint16_t channelId, SpeakClasses type, c
 		return;
 	}
 
-	if(asLowerCaseString(text) == "transform" && playerTransform(playerId))
+	if(asLowerCaseString(text) == "transform") {
+		playerTransform(player->getID());
 		return;
+	}
 
 	uint32_t muteTime = player->isMuted();
 	if (muteTime > 0) {
@@ -3239,20 +3241,20 @@ bool Game::playerTransform(uint32_t playerId)
 			player->mana = std::min<int32_t>(player->mana, player->manaMax);
 			player->sendStats();
 
-			const Position& position1 = player->getPosition();
+			const Position& positionPlayer = player->getPosition();
 			Position position;
 			if (player->getVocation()->effect[newTransformId] == 141) {
-				position.x = position1.x+1;
-				position.y = position1.y+1;
-				position.z = position1.z;
+				position.x = positionPlayer.x+1;
+				position.y = positionPlayer.y+1;
+				position.z = positionPlayer.z;
 			} else if (player->getVocation()->effect[newTransformId] == 131) {
-				position.x = position1.x+2;
-				position.y = position1.y;
-				position.z = position1.z;
+				position.x = positionPlayer.x+2;
+				position.y = positionPlayer.y;
+				position.z = positionPlayer.z;
 			} else {
-				position.x = position1.x;
-				position.y = position1.y;
-				position.z = position1.z;
+				position.x = positionPlayer.x;
+				position.y = positionPlayer.y;
+				position.z = positionPlayer.z;
 			}
 
 			addMagicEffect(position, player->getVocation()->effect[newTransformId]);
