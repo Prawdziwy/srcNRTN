@@ -94,15 +94,15 @@ class Vocation
 		float defenseMultiplier = 1.0f;
 		float armorMultiplier = 1.0f;
 
-		uint32_t levelReq[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint16_t levelReq[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 		uint16_t newLooktype[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 		float meleeDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 		float distDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 		float magDamageMultiplierTransform[TRANSFORMS_LAST + 1] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 		uint32_t additionalHealth[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 		uint32_t additionalMana[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint32_t effect[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-		uint32_t storage[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint16_t effect[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+		uint16_t storage[TRANSFORMS_LAST + 1] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 	private:
 		friend class Vocations;
@@ -124,7 +124,7 @@ class Vocation
 		uint32_t gainCap = 500;
 		uint32_t gainMana = 5;
 		uint32_t gainHP = 5;
-		uint32_t fromVocation = VOCATION_NONE;
+		uint16_t fromVocation = VOCATION_NONE;
 		uint32_t attackSpeed = 1500;
 		uint32_t baseSpeed = 220;
 		uint16_t id;

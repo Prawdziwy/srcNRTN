@@ -100,12 +100,12 @@ bool Vocations::loadFromXml()
 		}
 		
 		if ((attr = vocationNode.attribute("looktype"))) {
-			voc.looktype = pugi::cast<uint32_t>(attr.value());
+			voc.looktype = pugi::cast<uint16_t>(attr.value());
 		}
 
 
 		if ((attr = vocationNode.attribute("fromvoc"))) {
-			voc.fromVocation = pugi::cast<uint32_t>(attr.value());
+			voc.fromVocation = pugi::cast<uint16_t>(attr.value());
 		}
 		
 		voc.skillMultipliers[0] = 1.2;
@@ -159,32 +159,32 @@ bool Vocations::loadFromXml()
 
 				pugi::xml_attribute levelReqAttribute = childNode.attribute("levelReq");
 				if (levelReqAttribute) {
-					voc.levelReq[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(levelReqAttribute.value());
+					voc.levelReq[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint16_t>(levelReqAttribute.value());
 				}
 
 				pugi::xml_attribute newLooktypeAttribute = childNode.attribute("newLooktype");
 				if (newLooktypeAttribute) {
-					voc.newLooktype[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(newLooktypeAttribute.value());
+					voc.newLooktype[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint16_t>(newLooktypeAttribute.value());
 				}
 
 				pugi::xml_attribute additionalHealthAttribute = childNode.attribute("additionalHealth");
 				if (additionalHealthAttribute) {
-					voc.additionalHealth[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(additionalHealthAttribute.value());
+					voc.additionalHealth[pugi::cast<uint32_t>(transformAttribute.value())] = pugi::cast<uint32_t>(additionalHealthAttribute.value());
 				}
 
 				pugi::xml_attribute additionalManaAttribute = childNode.attribute("additionalMana");
 				if (additionalManaAttribute) {
-					voc.additionalMana[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(additionalManaAttribute.value());
+					voc.additionalMana[pugi::cast<uint32_t>(transformAttribute.value())] = pugi::cast<uint32_t>(additionalManaAttribute.value());
 				}
 
 				pugi::xml_attribute effectAttribute = childNode.attribute("effect");
 				if (effectAttribute) {
-					voc.effect[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(effectAttribute.value());
+					voc.effect[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint16_t>(effectAttribute.value());
 				}
 
 				pugi::xml_attribute storageAttribute = childNode.attribute("storage");
 				if (storageAttribute) {
-					voc.storage[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint64_t>(storageAttribute.value());
+					voc.storage[pugi::cast<uint16_t>(transformAttribute.value())] = pugi::cast<uint16_t>(storageAttribute.value());
 				}
 			}
 		}
