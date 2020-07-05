@@ -130,6 +130,7 @@ class Vocation
 		uint16_t id;
 		uint32_t looktype;
 		std::string weapon = "none";
+		std::string classVocation = "none";
 
 		uint16_t gainSoulTicks = 120;
 

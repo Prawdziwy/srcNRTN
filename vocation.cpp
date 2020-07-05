@@ -91,6 +91,10 @@ bool Vocations::loadFromXml()
 
 		voc.gainSoulTicks = 120;
 		
+		if ((attr = vocationNode.attribute("class"))) {
+			voc.classVocation = attr.as_string();
+		}
+		
 		if ((attr = vocationNode.attribute("weapon"))) {
 			voc.weapon = attr.as_string();
 		}
@@ -103,7 +107,7 @@ bool Vocations::loadFromXml()
 			voc.looktype = pugi::cast<uint16_t>(attr.value());
 		}
 
-
+		voc.fromVocation = voc.id;
 		if ((attr = vocationNode.attribute("fromvoc"))) {
 			voc.fromVocation = pugi::cast<uint16_t>(attr.value());
 		}
@@ -123,11 +127,19 @@ bool Vocations::loadFromXml()
 			voc.skillMultipliers[3] = 2.0;
 			voc.skillMultipliers[4] = 1.1;
 		}
+		int classMultiplier = 1;
+		if (voc.classVocation == "assassin") 
+			classMultiplier = 1;
+		else if (voc.classVocation == "support") 
+			classMultiplier = 0.75;
+		else if (voc.classVocation == "tank")
+			classMultiplier = 0.5;
+
 		for (int i = 0; i < 11; i++) {
 			float magDamageValue;
 			if (voc.weapon == "sword" || voc.weapon == "glove") {
-				float meleeDamageValue = voc.power*(i*2);
-				magDamageValue = voc.power*(i*3);
+				float meleeDamageValue = voc.power*(i*8.5)*classMultiplier;
+				magDamageValue = voc.power*(i*3.4)*classMultiplier;
 				if (meleeDamageValue < 1)
 					meleeDamageValue = 1.0f;
 				if (magDamageValue < 1)
@@ -136,8 +148,8 @@ bool Vocations::loadFromXml()
 				voc.distDamageMultiplierTransform[i] = 1.0f;
 				voc.magDamageMultiplierTransform[i] = magDamageValue;
 			} else {
-				float distDamageValue = voc.power*(i*1.8);
-				magDamageValue = voc.power*(i*2.5);
+				float distDamageValue = voc.power*(i*8.2)*classMultiplier;
+				magDamageValue = voc.power*(i*3.2)*classMultiplier;
 				if (distDamageValue < 1)
 					distDamageValue = 1.0f;
 				if (magDamageValue < 1)
