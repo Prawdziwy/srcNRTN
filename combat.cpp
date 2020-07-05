@@ -517,6 +517,9 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	Player* attackerPlayer = caster->getPlayer();
 	Player* targetPlayer = target->getPlayer();
 	if(attackerPlayer && targetPlayer) {
+		uint8_t transformID = attackerPlayer->getTransform();
+		if (transformID > 0)
+			damage.primary.value = ((damage.primary.value/5)*attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
 		uint64_t attackerPlayerLevel = attackerPlayer->getLevel();
 		uint64_t targetPlayerLevel = targetPlayer->getLevel();
 		if (attackerPlayerLevel <= 300 && targetPlayerLevel <= 300) {
