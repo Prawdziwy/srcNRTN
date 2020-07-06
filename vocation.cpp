@@ -127,13 +127,13 @@ bool Vocations::loadFromXml()
 			voc.skillMultipliers[3] = 2.0;
 			voc.skillMultipliers[4] = 1.1;
 		}
-		int classMultiplier = 1;
+		float classMultiplier = 1.0f;
 		if (voc.classVocation == "assassin") 
-			classMultiplier = 1;
+			classMultiplier = 1.0f;
 		else if (voc.classVocation == "support") 
-			classMultiplier = 0.75;
+			classMultiplier = 0.75f;
 		else if (voc.classVocation == "tank")
-			classMultiplier = 0.5;
+			classMultiplier = 0.5f;
 
 		for (int i = 0; i < 11; i++) {
 			float magDamageValue;
@@ -141,9 +141,9 @@ bool Vocations::loadFromXml()
 				float meleeDamageValue = voc.power*(i*8.5)*classMultiplier;
 				magDamageValue = voc.power*(i*3.4)*classMultiplier;
 				if (meleeDamageValue < 1)
-					meleeDamageValue = 1.0f;
+					meleeDamageValue = 1.0;
 				if (magDamageValue < 1)
-					magDamageValue = 1.0f;
+					magDamageValue = 1.0;
 				voc.meleeDamageMultiplierTransform[i] = meleeDamageValue;
 				voc.distDamageMultiplierTransform[i] = 1.0f;
 				voc.magDamageMultiplierTransform[i] = magDamageValue;

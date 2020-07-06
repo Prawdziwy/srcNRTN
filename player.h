@@ -345,11 +345,11 @@ class Player final : public Creature, public Cylinder
 			specialLootRate = newRate;
 		}
 
-		uint8_t transform;
-		uint8_t getTransform() const {
+		uint16_t transform;
+		uint16_t getTransform() const {
 			return transform;
 		}
-		void setTransform(uint8_t newTransform) {
+		void setTransform(uint16_t newTransform) {
 			transform = newTransform;
 		}
 
