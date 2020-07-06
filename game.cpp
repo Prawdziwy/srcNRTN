@@ -3260,14 +3260,9 @@ bool Game::playerTransform(uint32_t playerId)
 			addMagicEffect(position, player->getVocation()->effect[newTransformId]);
 			player->setTransform(newTransformId);
 			return true;
-		} else {
-			player->sendCancelMessage(msg);
-			return false;
 		}
-	} else {
-		player->sendCancelMessage(msg);
-		return false;
 	}
+	player->sendCancelMessage(msg);
 	return false;
 }
 

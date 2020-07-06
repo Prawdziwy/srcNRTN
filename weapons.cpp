@@ -80,7 +80,7 @@ void Weapons::loadDefaults()
 {
 	for (size_t i = 100, size = Item::items.size(); i < size; ++i) {
 		const ItemType& it = Item::items.getItemType(i);
-		if (it.id == 0 || weapons.find(i) != weapons.end()) {
+		if (it.id == 0) {
 			continue;
 		}
 
@@ -659,7 +659,7 @@ WeaponDistance::WeaponDistance(LuaScriptInterface* interface) :
 
 void WeaponDistance::configureWeapon(const ItemType& it)
 {
-	params.distanceEffect = it.shootType;
+	params.distanceEffect = it.shootType-1;
 
 	if (it.abilities) {
 		elementType = it.abilities->elementType;
@@ -962,7 +962,7 @@ bool WeaponWand::configureEvent(const pugi::xml_node& node)
 
 void WeaponWand::configureWeapon(const ItemType& it)
 {
-	params.distanceEffect = it.shootType;
+	params.distanceEffect = it.shootType-1;
 
 	Weapon::configureWeapon(it);
 }

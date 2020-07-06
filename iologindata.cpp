@@ -469,7 +469,7 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	player->currentOutfit = player->defaultOutfit;
 	player->direction = static_cast<Direction> (result->getNumber<uint16_t>("direction"));
 	player->setSpecialLootRate(result->getNumber<uint16_t>("special_rate_loot"));
-	player->setTransform(result->getNumber<uint8_t>("transform"));
+	player->setTransform(result->getNumber<uint16_t>("transform"));
 
 	if (g_game.getWorldType() != WORLD_TYPE_PVP_ENFORCED) {
 		const time_t skullSeconds = result->getNumber<time_t>("skulltime") - time(nullptr);
@@ -893,27 +893,29 @@ bool IOLoginData::savePlayer(Player* player)
 		return false;
 	}
 
-	query.clear();
 	if(!player->storageMap.empty()) {
 		std::stringExtended storageQuery(64);
 		storageQuery.clear();
 
 		storageQuery.append("INSERT INTO `player_storage` (`player_id`, `key`, `value`) VALUES ");
-		player->genReservedStorageRange();
+		std::map<uint32_t, int32_t> storageMap2;
 		int Storage1 = 0;
 		int Storage2 = 0;
 		for (const auto& it : player->storageMap) {
-			if (it.first)
+			if (it.first && storageMap2.find(it.first) == storageMap2.end()) {
 				Storage1 += 1;
+				storageMap2[it.first] = it.second;
+			}
 		}
-
-		for (const auto& it : player->storageMap) {
+		
+		query.clear();
+		for (auto& it : storageMap2) {
 			Storage2 += 1;
 			query.append("(").appendInt(player->getGUID()).append(",").appendInt(it.first).append(",").appendInt(it.second).append(")");
 			if(Storage2 != Storage1)
 				query.append(", ");
-			storageQuery.append(query);
 		}
+		storageQuery.append(query);
 
 		if (!g_database.executeQuery(storageQuery)) {
 			return false;

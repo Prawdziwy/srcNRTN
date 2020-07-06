@@ -622,21 +622,23 @@ void Player::addStorageValue(const uint32_t key, const int32_t value, const bool
 		}
 	}
 
-	if (value != -1) {
-		int32_t oldValue;
-		getStorageValue(key, oldValue);
+	if (storageMap.find(key) == storageMap.end()) {
+		if (value != -1) {
+			int32_t oldValue;
+			getStorageValue(key, oldValue);
 
-		storageMap[key] = value;
+			storageMap[key] = value;
 
-		if (!isLogin) {
-			auto currentFrameTime = g_dispatcher.getDispatcherCycle();
-			if (lastQuestlogUpdate != currentFrameTime && g_game.quests.isQuestStorage(key, value, oldValue)) {
-				lastQuestlogUpdate = currentFrameTime;
-				sendTextMessage(MESSAGE_EVENT_ADVANCE, "Your questlog has been updated.");
+			if (!isLogin) {
+				auto currentFrameTime = g_dispatcher.getDispatcherCycle();
+				if (lastQuestlogUpdate != currentFrameTime && g_game.quests.isQuestStorage(key, value, oldValue)) {
+					lastQuestlogUpdate = currentFrameTime;
+					sendTextMessage(MESSAGE_EVENT_ADVANCE, "Your questlog has been updated.");
+				}
 			}
+		} else {
+			storageMap.erase(key);
 		}
-	} else {
-		storageMap.erase(key);
 	}
 }
 

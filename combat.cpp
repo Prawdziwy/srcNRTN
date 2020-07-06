@@ -515,13 +515,15 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	}
 
 	Player* attackerPlayer = caster->getPlayer();
+	if(attackerPlayer) {
+		uint16_t transformID = attackerPlayer->getTransform();
+		if (damage.origin == ORIGIN_SPELL && transformID > 0)
+			damage.primary.value += ((damage.primary.value/3)*attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
+	}
 	Player* targetPlayer = target->getPlayer();
 	if(attackerPlayer && targetPlayer) {
-		uint8_t transformID = attackerPlayer->getTransform();
-		if (transformID > 0)
-			damage.primary.value = ((damage.primary.value/5)*attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
-		uint64_t attackerPlayerLevel = attackerPlayer->getLevel();
-		uint64_t targetPlayerLevel = targetPlayer->getLevel();
+		uint32_t attackerPlayerLevel = attackerPlayer->getLevel();
+		uint32_t targetPlayerLevel = targetPlayer->getLevel();
 		if (attackerPlayerLevel <= 300 && targetPlayerLevel <= 300) {
 			if (params.combatType == COMBAT_PHYSICALDAMAGE) {
 				float multipliernerf = 0.5f;
@@ -738,6 +740,7 @@ void Combat::addDistanceEffect(Creature* caster, const Position& fromPos, const 
 		if (!player) {
 			return;
 		}
+		
 
 		switch (player->getWeaponType()) {
 			case WEAPON_AXE:
