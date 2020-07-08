@@ -518,7 +518,7 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	if(attackerPlayer) {
 		uint16_t transformID = attackerPlayer->getTransform();
 		if (damage.origin == ORIGIN_SPELL && transformID > 0)
-			damage.primary.value += ((damage.primary.value/3)*attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
+			damage.primary.value = ((damage.primary.value/5) * attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
 	}
 	Player* targetPlayer = target->getPlayer();
 	if(attackerPlayer && targetPlayer) {
