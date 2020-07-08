@@ -139,7 +139,7 @@ bool Vocations::loadFromXml()
 			float magDamageValue;
 			if (voc.weapon == "sword" || voc.weapon == "glove") {
 				float meleeDamageValue = voc.power*(i*8.5)*classMultiplier;
-				magDamageValue = voc.power*(i*3.4)*classMultiplier;
+				magDamageValue = voc.power*(i*1)*classMultiplier;
 				if (meleeDamageValue < 1)
 					meleeDamageValue = 1.0;
 				if (magDamageValue < 1)
@@ -149,7 +149,7 @@ bool Vocations::loadFromXml()
 				voc.magDamageMultiplierTransform[i] = magDamageValue;
 			} else {
 				float distDamageValue = voc.power*(i*8.2)*classMultiplier;
-				magDamageValue = voc.power*(i*3.2)*classMultiplier;
+				magDamageValue = voc.power*(i*1)*classMultiplier;
 				if (distDamageValue < 1)
 					distDamageValue = 1.0f;
 				if (magDamageValue < 1)
