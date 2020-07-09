@@ -910,6 +910,14 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 				mType->info.weekendChance = pugi::cast<double>(attr.value());
 			} else if (strcasecmp(attrName, "newMonsterName") == 0) {
 				mType->info.newMonsterName = attr.as_string();
+			} else if (strcasecmp(attrName, "type") == 0) {
+				mType->info.monsterSummonType = attr.as_string();
+			} else if (strcasecmp(attrName, "level2") == 0) {
+				mType->info.level2 = pugi::cast<int32_t>(attr.value());
+			} else if (strcasecmp(attrName, "level3") == 0) {
+				mType->info.level3 = pugi::cast<int32_t>(attr.value());
+			} else if (strcasecmp(attrName, "level4") == 0) {
+				mType->info.level4 = pugi::cast<int32_t>(attr.value());
 			} else {
 				std::cout << "[Warning - Monsters::loadMonster] Unknown flag attribute: " << attrName << ". " << file << std::endl;
 			}

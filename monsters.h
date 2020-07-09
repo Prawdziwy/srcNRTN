@@ -143,6 +143,9 @@ class MonsterType
 		int32_t thinkEvent = -1;
 		int32_t targetDistance = 1;
 		int32_t runAwayHealth = 0;
+		int32_t level2 = 0;
+		int32_t level3 = 0;
+		int32_t level4 = 0;
 		uint64_t health = 100;
 		uint64_t healthMax = 100;
 		int32_t changeTargetChance = 0;
@@ -169,6 +172,7 @@ class MonsterType
 		bool closerSummon = false;
 
 		std::string newMonsterName;
+		std::string monsterSummonType;
 
 		MonstersEvent_t eventType = MONSTERS_EVENT_NONE;
 	};
