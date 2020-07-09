@@ -71,6 +71,10 @@ class ConfigManager
 
 			LAST_STRING_CONFIG /* this must be the last one */
 		};
+		
+		enum double_config_t {
+			LAST_DOUBLE_CONFIG /* this must be the last one */
+		};
 
 		enum integer_config_t {
 			IP,
@@ -103,7 +107,6 @@ class ConfigManager
 			STAIRHOP_DELAY,
 			EXP_FROM_PLAYERS_LEVEL_RANGE,
 			MAX_PACKETS_PER_SECOND,
-			COMPRESSION_LEVEL,
 			SERVER_SAVE_NOTIFY_DURATION,
 
 			LAST_INTEGER_CONFIG /* this must be the last one */
@@ -115,11 +118,13 @@ class ConfigManager
 		const std::string& getString(string_config_t what) const;
 		int32_t getNumber(integer_config_t what) const;
 		bool getBoolean(boolean_config_t what) const;
+		double getDouble(double_config_t what) const;
 
 	private:
 		std::string string[LAST_STRING_CONFIG] = {};
 		int32_t integer[LAST_INTEGER_CONFIG] = {};
 		bool boolean[LAST_BOOLEAN_CONFIG] = {};
+		double doubleI[LAST_DOUBLE_CONFIG] = {};
 
 		bool loaded = false;
 };
