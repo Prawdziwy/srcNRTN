@@ -73,6 +73,8 @@ class ConfigManager
 		};
 		
 		enum double_config_t {
+			MONSTER_HEALTH,
+
 			LAST_DOUBLE_CONFIG /* this must be the last one */
 		};
 
