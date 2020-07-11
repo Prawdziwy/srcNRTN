@@ -23,10 +23,12 @@
 #include "game.h"
 #include "spells.h"
 #include "events.h"
+#include "configmanager.h"
 
 extern Game g_game;
 extern Monsters g_monsters;
 extern Events* g_events;
+extern ConfigManager g_config;
 
 int32_t Monster::despawnRange;
 int32_t Monster::despawnRadius;
@@ -50,8 +52,10 @@ Monster::Monster(MonsterType* mType) :
 	defaultOutfit = mType->info.outfit;
 	currentOutfit = mType->info.outfit;
 	skull = mType->info.skull;
-	health = mType->info.health;
-	healthMax = mType->info.healthMax;
+	
+	double multiplier = static_cast<double>(g_config.getDouble(ConfigManager::MONSTER_HEALTH));
+	health = mType->info.health * multiplier;
+	healthMax = mType->info.healthMax * multiplier;
 	baseSpeed = mType->info.baseSpeed;
 	internalLight = mType->info.light;
 	hiddenHealth = mType->info.hiddenHealth;
@@ -138,6 +142,26 @@ void Monster::onCreatureAppear(Creature* creature, bool isLogin)
 		//We just spawned lets look around to see who is there.
 		if (isSummon()) {
 			isMasterInRange = canSee(getMaster()->getPosition());
+			
+			if (mType->info.monsterSummonType == "summonpet") {
+				if(Player* player = getMaster()->getPlayer()) {
+					int32_t level = player->getLevel();
+					int32_t maxhealthe = (player->getMaxHealth()*5);
+					this->changeHealth(maxhealthe);
+					Outfit_t outfit = mType->info.outfit;
+					if(mType->info.level2 != 0 && (level > 999 && level < 2001)) {
+						outfit.lookType = mType->info.level2;
+					}
+					if(mType->info.level3 != 0 && (level > 2000 && level < 2501)) {
+						outfit.lookType = mType->info.level3;
+					}
+					if(mType->info.level4 != 0 && level > 2500) {
+						outfit.lookType = mType->info.level4;
+					}
+					this->defaultOutfit = outfit;
+					g_game.internalCreatureChangeOutfit(this, outfit);
+				}
+			}
 		}
 
 		updateTargetList();
@@ -806,6 +830,7 @@ void Monster::doAttacking(uint32_t interval)
 
 				minCombatValue = spellBlock.minCombatValue;
 				maxCombatValue = spellBlock.maxCombatValue;
+				
 				spellBlock.spell->castSpell(this, attackedCreature);
 
 				if (spellBlock.isMelee) {

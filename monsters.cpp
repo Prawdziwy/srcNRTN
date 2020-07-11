@@ -804,6 +804,10 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 	if ((attr = monsterNode.attribute("manacost"))) {
 		mType->info.manaCost = pugi::cast<uint32_t>(attr.value());
 	}
+	
+	if ((attr = monsterNode.attribute("summonsCount"))) {
+		mType->info.summonsCount = pugi::cast<uint16_t>(attr.value());
+	}
 
 	if ((attr = monsterNode.attribute("skull"))) {
 		mType->info.skull = getSkullType(asLowerCaseString(attr.as_string()));

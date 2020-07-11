@@ -133,6 +133,8 @@ class MonsterType
 		uint32_t conditionImmunities = 0;
 		uint32_t damageImmunities = 0;
 		uint32_t baseSpeed = 200;
+		
+		uint16_t summonsCount = 0;
 
 		int32_t ignoreStorageId;
 		int32_t ignoreStorageValue;
