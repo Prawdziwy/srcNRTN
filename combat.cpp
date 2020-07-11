@@ -518,9 +518,9 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	if(attackerPlayer) {
 		uint16_t transformID = attackerPlayer->getTransform();
 		if (damage.origin == ORIGIN_SPELL && transformID > 0)
-			damage.primary.value = ((damage.primary.value/5) * attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
+			damage.primary.value = ((damage.primary.value/1.7) * attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
 	}
-	Player* targetPlayer = target->getPlayer();
+	/*Player* targetPlayer = target->getPlayer();
 	if(attackerPlayer && targetPlayer) {
 		uint32_t attackerPlayerLevel = attackerPlayer->getLevel();
 		uint32_t targetPlayerLevel = targetPlayer->getLevel();
@@ -585,7 +585,7 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 				damage.secondary.value *= multipliernerf;
 			}
 		}
-	}
+	}*/
 
 	if (g_game.combatChangeHealth(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, &damage);
