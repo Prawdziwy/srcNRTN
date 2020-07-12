@@ -2155,6 +2155,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Creature", "setSkull", LuaScriptInterface::luaCreatureSetSkull);
 
 	registerMethod("Creature", "getOutfit", LuaScriptInterface::luaCreatureGetOutfit);
+	registerMethod("Creature", "getDefaultOutfit", LuaScriptInterface::luaCreatureGetDefaultOutfit);
 	registerMethod("Creature", "setOutfit", LuaScriptInterface::luaCreatureSetOutfit);
 
 	registerMethod("Creature", "getCondition", LuaScriptInterface::luaCreatureGetCondition);
@@ -2443,6 +2444,8 @@ void LuaScriptInterface::registerFunctions()
 
 	registerMethod("Vocation", "getDemotion", LuaScriptInterface::luaVocationGetDemotion);
 	registerMethod("Vocation", "getPromotion", LuaScriptInterface::luaVocationGetPromotion);
+	
+	registerMethod("Vocation", "getLookType", LuaScriptInterface::luaVocationGetLookType);
 
 	// Town
 	registerClass("Town", "", LuaScriptInterface::luaTownCreate);
@@ -2644,6 +2647,8 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("MonsterType", "manaCost", LuaScriptInterface::luaMonsterTypeManaCost);
 	registerMethod("MonsterType", "baseSpeed", LuaScriptInterface::luaMonsterTypeBaseSpeed);
 	registerMethod("MonsterType", "light", LuaScriptInterface::luaMonsterTypeLight);
+	
+	registerMethod("MonsterType", "summonsCount", LuaScriptInterface::luaMonsterTypeSummonsCount);
 
 	registerMethod("MonsterType", "staticAttackChance", LuaScriptInterface::luaMonsterTypeStaticAttackChance);
 	registerMethod("MonsterType", "targetDistance", LuaScriptInterface::luaMonsterTypeTargetDistance);
@@ -7307,6 +7312,18 @@ int LuaScriptInterface::luaCreatureGetOutfit(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaCreatureGetDefaultOutfit(lua_State* L)
+{
+	// creature:getDefaultOutfit()
+	const Creature* creature = getUserdata<const Creature>(L, 1);
+	if (creature) {
+		pushOutfit(L, creature->getDefaultOutfit());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 int LuaScriptInterface::luaCreatureSetOutfit(lua_State* L)
 {
 	// creature:setOutfit(outfit)
@@ -10595,6 +10612,18 @@ int LuaScriptInterface::luaVocationGetPromotion(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaVocationGetLookType(lua_State* L)
+{
+	// vocation:getLookType()
+	Vocation* vocation = getUserdata<Vocation>(L, 1);
+	if (vocation) {
+		lua_pushnumber(L, vocation->getLookType());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 // Town
 int LuaScriptInterface::luaTownCreate(lua_State* L)
 {
@@ -12877,6 +12906,23 @@ int LuaScriptInterface::luaMonsterTypeLight(lua_State* L)
 		monsterType->info.light.color = getNumber<uint8_t>(L, 2);
 		monsterType->info.light.level = getNumber<uint8_t>(L, 3);
 		pushBoolean(L, true);
+	}
+	return 1;
+}
+
+int LuaScriptInterface::luaMonsterTypeSummonsCount(lua_State* L)
+{
+	// get: monsterType:summonsCount() set: monsterType:summonsCount(level)
+	MonsterType* monsterType = getUserdata<MonsterType>(L, 1);
+	if (monsterType) {
+		if (lua_gettop(L) == 1) {
+			lua_pushnumber(L, monsterType->info.summonsCount);
+		} else {
+			monsterType->info.summonsCount = getNumber<uint16_t>(L, 2);
+			pushBoolean(L, true);
+		}
+	} else {
+		lua_pushnil(L);
 	}
 	return 1;
 }

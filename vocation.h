@@ -81,6 +81,9 @@ class Vocation
 		uint32_t getBaseSpeed() const {
 			return baseSpeed;
 		}
+		uint16_t getLookType() const {
+			return looktype;
+		}
 
 		uint32_t getFromVocation() const {
 			return fromVocation;
@@ -128,7 +131,7 @@ class Vocation
 		uint32_t attackSpeed = 1500;
 		uint32_t baseSpeed = 220;
 		uint16_t id;
-		uint32_t looktype;
+		uint16_t looktype;
 		std::string weapon = "none";
 		std::string classVocation = "none";
 

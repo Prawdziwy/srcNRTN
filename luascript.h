@@ -780,6 +780,7 @@ class LuaScriptInterface
 		static int luaCreatureSetSkull(lua_State* L);
 
 		static int luaCreatureGetOutfit(lua_State* L);
+		static int luaCreatureGetDefaultOutfit(lua_State* L);
 		static int luaCreatureSetOutfit(lua_State* L);
 
 		static int luaCreatureGetCondition(lua_State* L);
@@ -1063,6 +1064,8 @@ class LuaScriptInterface
 
 		static int luaVocationGetDemotion(lua_State* L);
 		static int luaVocationGetPromotion(lua_State* L);
+		
+		static int luaVocationGetLookType(lua_State* L);
 
 		// Town
 		static int luaTownCreate(lua_State* L);
@@ -1250,6 +1253,7 @@ class LuaScriptInterface
 		static int luaMonsterTypeManaCost(lua_State* L);
 		static int luaMonsterTypeBaseSpeed(lua_State* L);
 		static int luaMonsterTypeLight(lua_State* L);
+		static int luaMonsterTypeSummonsCount(lua_State* L);
 
 		static int luaMonsterTypeStaticAttackChance(lua_State* L);
 		static int luaMonsterTypeTargetDistance(lua_State* L);

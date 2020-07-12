@@ -160,8 +160,13 @@ bool Vocations::loadFromXml()
 			}
 		}
 		
-		voc.meleeDamageMultiplier = 1.0f;
-		voc.distDamageMultiplier = 1.0f;
+		if (voc.weapon == "sword" || voc.weapon == "glove") {
+			voc.meleeDamageMultiplier = 1.0f;
+			voc.distDamageMultiplier = 0.1f;
+		} else {
+			voc.meleeDamageMultiplier = 0.1f;
+			voc.distDamageMultiplier = 1.0f;
+		}
 		voc.defenseMultiplier = 1.0f;
 		voc.armorMultiplier = 1.0f;
 
