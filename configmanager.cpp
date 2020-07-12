@@ -150,6 +150,22 @@ bool ConfigManager::load()
 		integer[GAME_PORT] = getGlobalNumber(L, "gameProtocolPort", 7172);
 		integer[LOGIN_PORT] = getGlobalNumber(L, "loginProtocolPort", 7171);
 		integer[STATUS_PORT] = getGlobalNumber(L, "statusProtocolPort", 7171);
+		
+		string[PROXY_LIST] = getGlobalString(L, "proxyList", "");
+        StringVector proxies = explodeString(string[PROXY_LIST], ";");
+        for (const std::string& proxyInfo : proxies) {
+            StringVector info = explodeString(proxyInfo, ",");
+            if (info.size() == 4) 
+            {
+                const std::string& ip = info[1];
+                const std::string& name = info[3];
+                uint16_t proxyId = std::stoi(info[0]);
+                uint16_t port = std::stoi(info[2]);
+                auto it = proxyList.emplace(std::piecewise_construct, std::forward_as_tuple(proxyId), std::forward_as_tuple(ip, port, name));
+                if (it.second)
+                    std::cout << "> Loaded proxy with id: " << proxyId << ", ip: " << ip << ", port: " << port << ", name: " << name << std::endl;
+            }
+        }
 	}
 
 	boolean[ALLOW_CHANGEOUTFIT] = getGlobalBoolean(L, "allowChangeOutfit", true);
@@ -183,6 +199,7 @@ bool ConfigManager::load()
 	string[WORLD_TYPE] = getGlobalString(L, "worldType", "pvp");
 	
 	doubleI[MONSTER_HEALTH] = getGlobalDouble(L, "rateMonsterHealth", 1);
+	doubleI[MONSTER_ARMOR] = getGlobalDouble(L, "rateMonsterArmor", 1);
 
 	integer[MAX_PLAYERS] = getGlobalNumber(L, "maxPlayers");
 	integer[PZ_LOCKED] = getGlobalNumber(L, "pzLocked", 60000);
@@ -260,4 +277,13 @@ double ConfigManager::getDouble(double_config_t what) const
 		return 0;
 	}
 	return doubleI[what];
+}
+
+static ConfigManager::ProxyInfo dummyInfo;
+std::pair<bool, const ConfigManager::ProxyInfo&> ConfigManager::getProxyInfo(uint16_t proxyId) {
+	auto it = proxyList.find(proxyId);
+	if (it == proxyList.end()) {
+		return {false, dummyInfo};
+	}
+ 	return {true, it->second};
 }
