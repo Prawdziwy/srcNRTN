@@ -813,12 +813,6 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 		mType->info.skull = getSkullType(asLowerCaseString(attr.as_string()));
 	}
 
-	if ((attr = monsterNode.attribute("saga"))) {
-		mType->info.ignoreStorageId = pugi::cast<uint32_t>(attr.value());
-		mType->info.isSagaMonster = true;
-	} if ((attr = monsterNode.attribute("value")))
-		mType->info.ignoreStorageValue = pugi::cast<uint32_t>(attr.value());
-
 	if ((attr = monsterNode.attribute("script"))) {
 		if (!scriptInterface) {
 			scriptInterface.reset(new LuaScriptInterface("Monster Interface"));
@@ -854,10 +848,15 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 		}
 	}
 
+	pugi::xml_attribute attr2;
 	if ((node = monsterNode.child("flags"))) {
 		for (auto flagNode : node.children()) {
 			attr = flagNode.first_attribute();
 			const char* attrName = attr.name();
+
+			attr2 = flagNode.last_attribute();
+			const char* attrName2 = attr2.name();
+			
 			if (strcasecmp(attrName, "summonable") == 0) {
 				mType->info.isSummonable = attr.as_bool();
 			} else if (strcasecmp(attrName, "attackable") == 0) {
@@ -900,8 +899,10 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 				mType->info.canWalkOnPoison = attr.as_bool();
 			} else if (strcasecmp(attrName, "saga") == 0) {
 				mType->info.ignoreStorageId = pugi::cast<int32_t>(attr.value());
-			} else if (strcasecmp(attrName, "value") == 0) {
-				mType->info.ignoreStorageValue = pugi::cast<int32_t>(attr.value());
+				if(strcasecmp(attrName2, "value") == 0) {
+					mType->info.ignoreStorageValue = pugi::cast<int32_t>(attr2.value());
+				}
+				mType->info.isSagaMonster = true;
 			} else if (strcasecmp(attrName, "canChange") == 0) {
 				mType->info.canChange = attr.as_bool();
 			} else if (strcasecmp(attrName, "dummyTrainer") == 0) {
