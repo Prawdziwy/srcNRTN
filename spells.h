@@ -282,6 +282,7 @@ class Spell : public BaseSpell
 
 		bool selfTarget = false;
 		bool needTarget = false;
+		bool selfNeedTarget = false;
 
 	private:
 

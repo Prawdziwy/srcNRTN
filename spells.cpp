@@ -459,6 +459,10 @@ bool Spell::configureSpell(const pugi::xml_node& node)
 		needTarget = attr.as_bool();
 	}
 
+	if ((attr = node.attribute("selfneedtarget"))) {
+		selfNeedTarget = attr.as_bool();
+	}
+
 	if ((attr = node.attribute("needweapon"))) {
 		needWeapon = attr.as_bool();
 	}
@@ -604,6 +608,7 @@ bool Spell::playerSpellCheck(Player* player) const
 			case WEAPON_SWORD:
 			case WEAPON_CLUB:
 			case WEAPON_AXE:
+			case WEAPON_FIST:
 				break;
 
 			default: {
@@ -915,6 +920,21 @@ bool InstantSpell::playerCastInstant(Player* player, std::string& param)
 
 		if (!playerInstantSpellCheck(player, var.pos)) {
 			return false;
+		}
+		
+		if(selfNeedTarget) {
+			Creature* target = nullptr;
+			
+			if(Creature* targetMonster = player->getAttackedCreature())
+				target = targetMonster;
+
+			if (target != nullptr) {
+				if (!canThrowSpell(player, target)) {
+					player->sendCancelMessage(RETURNVALUE_CREATUREISNOTREACHABLE);
+					g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
+					return false;
+				}
+			}
 		}
 	}
 
