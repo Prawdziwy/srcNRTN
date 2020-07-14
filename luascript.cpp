@@ -8569,7 +8569,7 @@ int LuaScriptInterface::luaDoPlayerAddStunDuration(lua_State* L)
 
 int LuaScriptInterface::luaPlayerGetStunStatus(lua_State* L)
 {
-	// player:getStunStatus(stunduration)
+	// player:getStunStatus()
 	Player* player = getUserdata<Player>(L, 1);
 	if (player) {
 		if (player->hasCondition(CONDITION_STUN)) {
