@@ -445,6 +445,17 @@ Player* Game::getPlayerByName(const std::string& s)
 	return it->second;
 }
 
+PlayerVector Game::getPlayersByAccount(uint32_t acc)
+{
+	PlayerVector playersA;
+	for (const auto& it : players) {
+		if (it.second->getAccount() == acc)
+			playersA.push_back(it.second);
+	}
+
+	return playersA;
+}
+
 Player* Game::getPlayerByGUID(const uint32_t& guid)
 {
 	if (guid == 0) {
@@ -748,34 +759,6 @@ ReturnValue Game::internalMoveCreature(Creature* creature, Direction direction, 
 	if (player && !diagonalMovement) {
 		if(player->hasCondition(CONDITION_STUN))
 			return RETURNVALUE_NOTPOSSIBLE;
-		//try go up
-		if (currentPos.z != 8 && creature->getTile()->hasHeight(3)) {
-			Tile* tmpTile = map.getTile(currentPos.x, currentPos.y, currentPos.getZ() - 1);
-			if (tmpTile == nullptr || (tmpTile->getGround() == nullptr && !tmpTile->hasFlag(TILESTATE_BLOCKSOLID))) {
-				tmpTile = map.getTile(destPos.x, destPos.y, destPos.getZ() - 1);
-				if (tmpTile && tmpTile->getGround() && !tmpTile->hasFlag(TILESTATE_BLOCKSOLID)) {
-					flags |= FLAG_IGNOREBLOCKITEM | FLAG_IGNOREBLOCKCREATURE;
-
-					if (!tmpTile->hasFlag(TILESTATE_FLOORCHANGE)) {
-						player->setDirection(direction);
-						destPos.z--;
-					}
-				}
-			}
-		}
-
-		//try go down
-		if (currentPos.z != 7 && currentPos.z == destPos.z) {
-			Tile* tmpTile = map.getTile(destPos.x, destPos.y, destPos.z);
-			if (tmpTile == nullptr || (tmpTile->getGround() == nullptr && !tmpTile->hasFlag(TILESTATE_BLOCKSOLID))) {
-				tmpTile = map.getTile(destPos.x, destPos.y, destPos.z + 1);
-				if (tmpTile && tmpTile->hasHeight(3)) {
-					flags |= FLAG_IGNOREBLOCKITEM | FLAG_IGNOREBLOCKCREATURE;
-					player->setDirection(direction);
-					destPos.z++;
-				}
-			}
-		}
 	}
 
 	Tile* toTile = map.getTile(destPos);
