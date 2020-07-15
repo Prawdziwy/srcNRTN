@@ -923,13 +923,13 @@ bool InstantSpell::playerCastInstant(Player* player, std::string& param)
 		}
 		
 		if(selfNeedTarget) {
-			Creature* target = nullptr;
+			Creature* targetS = nullptr;
 			
 			if(Creature* targetMonster = player->getAttackedCreature())
-				target = targetMonster;
+				targetS = targetMonster;
 
-			if (target != nullptr) {
-				if (!canThrowSpell(player, target)) {
+			if (targetS != nullptr) {
+				if (!canThrowSpell(player, targetS)) {
 					player->sendCancelMessage(RETURNVALUE_CREATUREISNOTREACHABLE);
 					g_game.addMagicEffect(player->getPosition(), CONST_ME_POFF);
 					return false;
