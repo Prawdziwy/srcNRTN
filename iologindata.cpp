@@ -31,7 +31,7 @@ Account IOLoginData::loadAccount(uint32_t accno)
 	Account account;
 
 	std::stringExtended query(128);
-	query.append("SELECT `id`, `name`, `password`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `id` = ").appendInt(accno);
+	query.append("SELECT `id`, `name`, `password`, `type`, `premdays`, `lastday`, `logins`, `proxy_id`, `charlist_ip` FROM `accounts` WHERE `id` = ").appendInt(accno);
 	DBResult_ptr result = g_database.storeQuery(query);
 	if (!result) {
 		return account;
@@ -42,13 +42,16 @@ Account IOLoginData::loadAccount(uint32_t accno)
 	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
 	account.premiumDays = result->getNumber<uint16_t>("premdays");
 	account.lastDay = result->getNumber<time_t>("lastday");
+	account.logins = result->getNumber<uint16_t>("logins");
+	account.proxyId = result->getNumber<uint16_t>("proxy_id");
+	account.charlistIP = result->getNumber<uint32_t>("charlist_ip");
 	return account;
 }
 
 bool IOLoginData::saveAccount(const Account& acc)
 {
 	std::stringExtended query(128);
-	query.append("UPDATE `accounts` SET `premdays` = ").appendInt(acc.premiumDays).append(", `lastday` = ").appendInt(acc.lastDay).append(" WHERE `id` = ").appendInt(acc.id);
+	query.append("UPDATE `accounts` SET `premdays` = ").appendInt(acc.premiumDays).append(", `lastday` = ").appendInt(acc.lastDay).append(", `logins` = ").appendInt(acc.logins).append(" WHERE `id` = ").appendInt(acc.id);
 	return g_database.executeQuery(query);
 }
 
@@ -225,10 +228,11 @@ bool IOLoginData::preloadPlayer(Player* player, const std::string& name)
 		Guild* guild = g_game.getGuild(guildId);
 		if (!guild) {
 			guild = IOGuild::loadGuild(guildId);
-			g_game.addGuild(guild);
 		}
 
 		if (guild) {
+			g_game.addGuild(guild);
+
 			player->guild = guild;
 			const GuildRank* rank = guild->getRankById(playerRankId);
 			if (!rank) {
@@ -653,12 +657,19 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 		if (!g_database.executeQuery(query)) {
 			return false;
 		}
+	} else {
+		query.append("UPDATE `players` SET `").append(table).append("` = NULL WHERE `id` = ").appendInt(player->getGUID());
+		if (!g_database.executeQuery(query)) {
+			return false;
+		}
 	}
 	return true;
 }
 
 bool IOLoginData::saveItems2(const Player* player, const ItemBlockList& itemList, std::stringExtended& query, PropWriteStream& propWriteStream)
 {
+	query.append("INSERT INTO `player_items` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
+
 	int amountIT = 0;
 	std::stringExtended ss(64);
 
@@ -685,8 +696,11 @@ bool IOLoginData::saveItems2(const Player* player, const ItemBlockList& itemList
 		if(amountIT2 != amountIT)
 			ss.append(", ");
 
-		query.append(ss);
 	}
+	if(ss.empty())
+		return true;
+	else
+		query.append(ss);
 	return g_database.executeQuery(query);
 }
 
@@ -857,14 +871,13 @@ bool IOLoginData::savePlayer(Player* player)
 	
 	//item saving
 	query.clear();
+	propWriteStream.clear();
 	
 	query.append("DELETE FROM `player_items` WHERE `player_id` = ").appendInt(player->getGUID());
 	if (!g_database.executeQuery(query)) {
 		return false;
 	}
 	query.clear();
-
-	query.append("INSERT INTO `player_items` (`player_id`, `pid`, `sid`, `itemtype`, `count`, `attributes`) VALUES ");
 
 	if (!saveItems2(player, itemList, query, propWriteStream)) {
 		return false;
@@ -1049,3 +1062,10 @@ void IOLoginData::removePremiumDays(uint32_t accountId, int32_t removeDays)
 	query.append("UPDATE `accounts` SET `premdays` = `premdays` - ").appendInt(removeDays).append(" WHERE `id` = ").appendInt(accountId);
 	g_database.executeQuery(query);
 }
+
+void IOLoginData::setAccountIP(Account account, uint32_t ipaddress)
+{
+	std::stringExtended query(128);
+	query.append("UPDATE `accounts` SET `charlist_ip` = ").appendInt(ipaddress).append(" WHERE `id` = ").appendInt(account.id);
+	g_database.executeQuery(query);
+} 

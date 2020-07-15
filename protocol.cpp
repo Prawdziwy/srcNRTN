@@ -18,6 +18,7 @@
  */
 
 #include "otpch.h"
+#include "tasks.h"
 
 #include "protocol.h"
 #include "outputmessage.h"
@@ -41,10 +42,22 @@ void Protocol::onSendMessage(const OutputMessage_ptr& msg) const
 void Protocol::onRecvMessage(NetworkMessage& msg)
 {
 	if (encryptionEnabled && !XTEA_decrypt(msg)) {
+		getConnection()->resumeWork();
 		return;
 	}
 
-	parsePacket(msg);
+	using ProtocolWeak_ptr = std::weak_ptr<Protocol>;
+	ProtocolWeak_ptr protocolWeak = std::weak_ptr<Protocol>(shared_from_this());
+
+	std::function<void (void)> callback = [protocolWeak, &msg]() {
+		if (auto protocol = protocolWeak.lock()) {
+			if (auto connection = protocol->getConnection()) {
+				protocol->parsePacket(msg);
+				connection->resumeWork();
+			}
+		}
+	};
+	g_dispatcher.addTask(createTask(callback));
 }
 
 OutputMessage_ptr Protocol::getOutputBuffer(int32_t size)

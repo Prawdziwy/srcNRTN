@@ -281,6 +281,11 @@ int32_t Player::getWeaponSkill(const Item* item) const
 			attackSkill = getSkillLevel(SKILL_DISTANCE);
 			break;
 		}
+		
+		case WEAPON_FIST: {
+			attackSkill = getSkillLevel(SKILL_FIST);
+			break;
+		}
 
 		default: {
 			attackSkill = 0;
@@ -1183,11 +1188,6 @@ void Player::onCreatureMove(Creature* creature, const Tile* newTile, const Posit
 {
 	Creature::onCreatureMove(creature, newTile, newPos, oldTile, oldPos, teleport);
 
-	if (hasFollowPath && (creature == followCreature || (creature == this && followCreature))) {
-		isUpdatingPath = false;
-		g_dispatcher.addTask(createTask(std::bind(&Game::updateCreatureWalk, &g_game, getID())));
-	}
-
 	if (creature != this) {
 		return;
 	}
@@ -1545,17 +1545,6 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 		std::ostringstream strExp;
 		strExp << exp;
 		g_game.addAnimatedText(strExp.str(), position, TEXTCOLOR_WHITE);
-
-		SpectatorVec spectators;
-		g_game.map.getSpectators(spectators, position, false, true);
-		spectators.erase(this);
-		if (!spectators.empty()) {
-			message.type = MESSAGE_STATUS_DEFAULT;
-			message.text = getName() + " gained " + expString;
-			for (Creature* spectator : spectators) {
-				spectator->getPlayer()->sendTextMessage(message);
-			}
-		}
 	}
 
 	uint32_t prevLevel = level;
@@ -1576,6 +1565,7 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 	}
 
 	if (prevLevel != level) {
+		std::cout << "TEST" << "\n";
 		health = getMaxHealth();
 		mana = getMaxMana();
 
@@ -1594,11 +1584,11 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 			party->updateSharedExperience();
 		}
 
-		g_creatureEvents->playerAdvance(this, SKILL_LEVEL, prevLevel, level);
-
 		std::ostringstream ss;
 		ss << "You advanced from Level " << prevLevel << " to Level " << level << '.';
 		sendTextMessage(MESSAGE_EVENT_ADVANCE, ss.str());
+		
+		g_creatureEvents->playerAdvance(this, SKILL_LEVEL, prevLevel, level);
 	}
 
 	if (nextLevelExp > currLevelExp) {
@@ -1830,11 +1820,16 @@ BlockType_t Player::blockHit(Creature* attacker, CombatType_t combatType, int32_
 
 uint32_t Player::getIP() const
 {
-	if (client) {
-		return client->getIP();
+	Account account = IOLoginData::loadAccount(getAccount());
+	auto proxyInfo = g_config.getProxyInfo(account.proxyId);
+	
+	if (proxyInfo.first) {
+        return account.charlistIP;
+	} else if(client) {
+        return client->getIP();
 	}
 
-	return 0;
+	return lastIP;
 }
 
 void Player::death(Creature* lastHitCreature)

@@ -930,12 +930,8 @@ bool Creature::setFollowCreature(Creature* creature)
 		hasFollowPath = false;
 		forceUpdateFollowPath = false;
 		followCreature = creature;
-		if (getMonster()) {
-			isUpdatingPath = false;
-			goToFollowCreature();
-		} else {
-			isUpdatingPath = true;
-		}
+		isUpdatingPath = false;
+		g_dispatcher.addTask(createTask(std::bind(&Game::updateCreatureWalk, &g_game, getID())), true);
 	} else {
 		isUpdatingPath = false;
 		followCreature = nullptr;
