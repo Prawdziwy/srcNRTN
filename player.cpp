@@ -671,7 +671,7 @@ bool Player::canSeeCreature(const Creature* creature) const
 		return true;
 	}
 
-	if (creature->isInGhostMode() && !group->access) {
+	if ((creature->isInGhostMode() || creature->isInSpellGhostMode()) && !group->access) {
 		return false;
 	}
 
@@ -683,7 +683,7 @@ bool Player::canSeeCreature(const Creature* creature) const
 
 bool Player::canWalkthrough(const Creature* creature) const
 {
-	if (group->access || creature->isInGhostMode()) {
+	if (group->access || (creature->isInGhostMode() || creature->isInSpellGhostMode())) {
 		return true;
 	}
 
@@ -1565,7 +1565,6 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 	}
 
 	if (prevLevel != level) {
-		std::cout << "TEST" << "\n";
 		health = getMaxHealth();
 		mana = getMaxMana();
 

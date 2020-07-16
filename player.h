@@ -323,6 +323,13 @@ class Player final : public Creature, public Cylinder
 		void switchGhostMode() {
 			ghostMode = !ghostMode;
 		}
+		
+		bool isInSpellGhostMode() const override {
+			return spellGhostMode;
+		}
+		void switchSpellGhostMode() {
+			spellGhostMode = !spellGhostMode;
+		}
 
 		uint32_t getAccount() const {
 			return accountNumber;
@@ -1209,6 +1216,7 @@ class Player final : public Creature, public Cylinder
 		bool chaseMode = false;
 		bool secureMode = false;
 		bool ghostMode = false;
+		bool spellGhostMode = false;
 		bool pzLocked = false;
 		bool isConnecting = false;
 		bool addAttackSkillPoint = false;
