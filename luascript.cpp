@@ -2109,6 +2109,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Creature", "isRemoved", LuaScriptInterface::luaCreatureIsRemoved);
 	registerMethod("Creature", "isCreature", LuaScriptInterface::luaCreatureIsCreature);
 	registerMethod("Creature", "isInGhostMode", LuaScriptInterface::luaCreatureIsInGhostMode);
+	registerMethod("Creature", "isInSpellGhostMode", LuaScriptInterface::luaCreatureIsInSpellGhostMode);
 	registerMethod("Creature", "isHealthHidden", LuaScriptInterface::luaCreatureIsHealthHidden);
 	registerMethod("Creature", "isImmune", LuaScriptInterface::luaCreatureIsImmune);
 
@@ -2336,6 +2337,7 @@ void LuaScriptInterface::registerFunctions()
 	registerMethod("Player", "setEditHouse", LuaScriptInterface::luaPlayerSetEditHouse);
 
 	registerMethod("Player", "setGhostMode", LuaScriptInterface::luaPlayerSetGhostMode);
+	registerMethod("Player", "setSpellGhostMode", LuaScriptInterface::luaPlayerSetSpellGhostMode);
 
 	registerMethod("Player", "getContainerId", LuaScriptInterface::luaPlayerGetContainerId);
 	registerMethod("Player", "getContainerById", LuaScriptInterface::luaPlayerGetContainerById);
@@ -6824,6 +6826,18 @@ int LuaScriptInterface::luaCreatureIsInGhostMode(lua_State* L)
 	return 1;
 }
 
+int LuaScriptInterface::luaCreatureIsInSpellGhostMode(lua_State* L)
+{
+	// creature:isInSpellGhostMode()
+	const Creature* creature = getUserdata<const Creature>(L, 1);
+	if (creature) {
+		pushBoolean(L, creature->isInSpellGhostMode());
+	} else {
+		lua_pushnil(L);
+	}
+	return 1;
+}
+
 int LuaScriptInterface::luaCreatureIsHealthHidden(lua_State* L)
 {
 	// creature:isHealthHidden()
@@ -9571,6 +9585,62 @@ int LuaScriptInterface::luaPlayerSetGhostMode(lua_State* L)
 	}
 
 	if (player->isInGhostMode()) {
+		for (const auto& it : g_game.getPlayers()) {
+			if (!it.second->isAccessPlayer()) {
+				it.second->notifyStatusChange(player, VIPSTATUS_OFFLINE);
+			}
+		}
+		IOLoginData::updateOnlineStatus(player->getGUID(), false);
+	} else {
+		for (const auto& it : g_game.getPlayers()) {
+			if (!it.second->isAccessPlayer()) {
+				it.second->notifyStatusChange(player, VIPSTATUS_ONLINE);
+			}
+		}
+		IOLoginData::updateOnlineStatus(player->getGUID(), true);
+	}
+	pushBoolean(L, true);
+	return 1;
+}
+
+int LuaScriptInterface::luaPlayerSetSpellGhostMode(lua_State* L)
+{
+	// player:setSpellGhostMode(enabled[, showEffect=true])
+	Player* player = getUserdata<Player>(L, 1);
+	if (!player) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	bool enabled = getBoolean(L, 2);
+	if (player->isInSpellGhostMode() == enabled) {
+		pushBoolean(L, true);
+		return 1;
+	}
+
+	bool showEffect = getBoolean(L, 3, true);
+
+	player->switchSpellGhostMode();
+
+	Tile* tile = player->getTile();
+	const Position& position = player->getPosition();
+
+	SpectatorVec spectators;
+	g_game.map.getSpectators(spectators, position, true, true);
+	for (Creature* spectator : spectators) {
+		Player* tmpPlayer = spectator->getPlayer();
+		if (tmpPlayer != player && !tmpPlayer->isAccessPlayer()) {
+			if (enabled) {
+				tmpPlayer->sendRemoveTileThing(position, tile->getStackposOfCreature(tmpPlayer, player));
+			} else {
+				tmpPlayer->sendCreatureAppear(player, position, showEffect);
+			}
+		} else {
+			tmpPlayer->sendCreatureChangeVisible(player, !enabled);
+		}
+	}
+
+	if (player->isInSpellGhostMode()) {
 		for (const auto& it : g_game.getPlayers()) {
 			if (!it.second->isAccessPlayer()) {
 				it.second->notifyStatusChange(player, VIPSTATUS_OFFLINE);

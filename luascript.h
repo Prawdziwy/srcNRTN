@@ -734,6 +734,7 @@ class LuaScriptInterface
 		static int luaCreatureIsRemoved(lua_State* L);
 		static int luaCreatureIsCreature(lua_State* L);
 		static int luaCreatureIsInGhostMode(lua_State* L);
+		static int luaCreatureIsInSpellGhostMode(lua_State* L);
 		static int luaCreatureIsHealthHidden(lua_State* L);
 		static int luaCreatureIsImmune(lua_State* L);
 
@@ -961,6 +962,7 @@ class LuaScriptInterface
 		static int luaPlayerSetEditHouse(lua_State* L);
 
 		static int luaPlayerSetGhostMode(lua_State* L);
+		static int luaPlayerSetSpellGhostMode(lua_State* L);
 
 		static int luaPlayerGetContainerId(lua_State* L);
 		static int luaPlayerGetContainerById(lua_State* L);
