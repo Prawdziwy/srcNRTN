@@ -24,6 +24,7 @@
 #include "combat.h"
 #include "creature.h"
 #include "game.h"
+#include "monster.h"
 
 extern Game g_game;
 
@@ -196,11 +197,11 @@ bool Map::placeCreature(const Position& centerPos, Creature* creature, bool exte
 			Position tryPos(centerPos.x + it.first, centerPos.y + it.second, centerPos.z);
 
 			tile = getTile(tryPos.x, tryPos.y, tryPos.z);
-			if (!tile || (placeInPZ && !tile->hasFlag(TILESTATE_PROTECTIONZONE))) {
+			if (!tile || (creature->isDummyTrainer() == false && placeInPZ && !tile->hasFlag(TILESTATE_PROTECTIONZONE))) {
 				continue;
 			}
 
-			if (tile->queryAdd(0, *creature, 1, 0) == RETURNVALUE_NOERROR) {
+			if (creature->isDummyTrainer() == false && tile->queryAdd(0, *creature, 1, 0) == RETURNVALUE_NOERROR) {
 				if (!extendedPos || isSightClear(centerPos, tryPos, false)) {
 					foundTile = true;
 					break;
@@ -208,7 +209,7 @@ bool Map::placeCreature(const Position& centerPos, Creature* creature, bool exte
 			}
 		}
 
-		if (!foundTile) {
+		if (creature->isDummyTrainer() == false && !foundTile) {
 			return false;
 		}
 	}
