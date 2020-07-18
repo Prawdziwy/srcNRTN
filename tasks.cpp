@@ -64,6 +64,7 @@ void Dispatcher::threadMain()
 			taskLockUnique.unlock();
 		}
 	}
+	g_database.disconnect();
 }
 
 void Dispatcher::addTask(Task* task, bool push_front /*= false*/)
