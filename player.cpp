@@ -696,8 +696,12 @@ bool Player::canWalkthrough(const Creature* creature) const
 	if (!playerTile || (!playerTile->hasFlag(TILESTATE_PROTECTIONZONE) && player->getLevel() > static_cast<uint32_t>(g_config.getNumber(ConfigManager::PROTECTION_LEVEL)))) {
 		return false;
 	}
-
+	
 	const Item* playerTileGround = playerTile->getGround();
+	if(!playerTileGround || playerTileGround->getID() == 11060) {
+		return false;
+	}
+
 	if (!playerTileGround || !playerTileGround->hasWalkStack()) {
 		return false;
 	}
