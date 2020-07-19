@@ -39,11 +39,11 @@ void Protocol::onSendMessage(const OutputMessage_ptr& msg) const
 	}
 }
 
-void Protocol::onRecvMessage(NetworkMessage& msg)
+bool Protocol::onRecvMessage(NetworkMessage& msg)
 {
 	if (encryptionEnabled && !XTEA_decrypt(msg)) {
 		getConnection()->resumeWork();
-		return;
+		return false;
 	}
 
 	using ProtocolWeak_ptr = std::weak_ptr<Protocol>;
@@ -58,6 +58,7 @@ void Protocol::onRecvMessage(NetworkMessage& msg)
 		}
 	};
 	g_dispatcher.addTask(createTask(callback));
+	return true;
 }
 
 OutputMessage_ptr Protocol::getOutputBuffer(int32_t size)
