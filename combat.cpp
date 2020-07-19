@@ -187,18 +187,45 @@ ReturnValue Combat::canTargetCreature(Player* attacker, Creature* target)
 	if (attacker == target) {
 		return RETURNVALUE_YOUMAYNOTATTACKTHISPLAYER;
 	}
-
-	if(Monster* monster = const_cast<Monster*>(target->getMonster())) {
-		if(!monster->isTarget(attacker)) {
+	
+	Monster* monster = const_cast<Monster*>(target->getMonster());
+	
+	const Position& pos = attacker->getPosition();
+	const Position& pos2 = target->getPosition();
+	
+	uint16_t houseId1 = 0;
+	uint16_t houseId2 = 0;
+	
+	if(monster && monster->isDummyTrainer()) {
+		if(Tile* tile = g_game.map.getTile(pos)) {
+			if(HouseTile* houseTile = dynamic_cast<HouseTile*>(tile)) {
+				if (House* house = houseTile->getHouse()) {
+					houseId1 = house->getId();
+				}
+			}
+		}
+		if (houseId1 != 0) {
+			if(Tile* tile = g_game.map.getTile(pos2)) {
+				if(HouseTile* houseTile = dynamic_cast<HouseTile*>(tile)) {
+					if (House* house = houseTile->getHouse()) {
+						houseId2 = house->getId();
+					}
+				}
+			}
+		}
+		
+		if(monster->isDummyTrainer() == false && !monster->isTarget(attacker)) {
 			if (attacker->getGroup()->id < 2)
 				return RETURNVALUE_YOUMAYNOTATTACKTHISCREATURE;
 		}
 	}
 
 	if (!attacker->hasFlag(PlayerFlag_IgnoreProtectionZone)) {
-		if(Monster* monster = const_cast<Monster*>(target->getMonster())) {
-			if(monster->isDummyTrainer() == true)
-				return Combat::canDoCombat(attacker, target);
+		if(monster) {
+			if(monster->isDummyTrainer() == true) {
+				if (houseId1 != 0 and houseId2 != 0 and houseId1 == houseId2)
+					return Combat::canDoCombat(attacker, target);
+			}
 		}
 		//pz-zone
 		if (attacker->getZone() == ZONE_PROTECTION) {
@@ -520,8 +547,14 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		if (damage.origin == ORIGIN_SPELL && transformID > 0)
 			damage.primary.value = ((damage.primary.value/1.7) * attackerPlayer->getVocation()->magDamageMultiplierTransform[transformID]);
 	}
-	/*Player* targetPlayer = target->getPlayer();
+	Player* targetPlayer = target->getPlayer();
 	if(attackerPlayer && targetPlayer) {
+		if(damage.primary.type == COMBAT_PHYSICALDAMAGE)
+				damage.primary.value -= (double)(damage.primary.value * -36) / 100.;
+			else
+				damage.primary.value -= (double)(damage.primary.value * -38) / 100.;
+	}
+	/*if(attackerPlayer && targetPlayer) {
 		uint32_t attackerPlayerLevel = attackerPlayer->getLevel();
 		uint32_t targetPlayerLevel = targetPlayer->getLevel();
 		if (attackerPlayerLevel <= 300 && targetPlayerLevel <= 300) {
