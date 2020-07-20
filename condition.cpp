@@ -199,6 +199,7 @@ Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, in
 		case CONDITION_INFIGHT:
 		case CONDITION_STUN:
 		case CONDITION_DRUNK:
+		case CONDITION_IMMORTAL:
 		case CONDITION_EXHAUST_WEAPON:
 		case CONDITION_EXHAUST_COMBAT:
 		case CONDITION_EXHAUST_HEAL:
