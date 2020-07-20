@@ -1169,6 +1169,7 @@ void LuaScriptInterface::registerFunctions()
 	registerEnum(CONDITION_EXHAUST_COMBAT)
 	registerEnum(CONDITION_EXHAUST_HEAL)
 	registerEnum(CONDITION_PACIFIED)
+	registerEnum(CONDITION_IMMORTAL)
 
 	registerEnum(CONDITIONID_DEFAULT)
 	registerEnum(CONDITIONID_COMBAT)
@@ -7074,7 +7075,13 @@ int LuaScriptInterface::luaCreatureGetSpeed(lua_State* L)
 	// creature:getSpeed()
 	const Creature* creature = getUserdata<const Creature>(L, 1);
 	if (creature) {
-		lua_pushnumber(L, creature->getSpeed());
+		if (const Player* player = creature->getPlayer()) {
+			int32_t speed = player->getSpeed();
+			if (speed > PLAYER_MAX_SPEED)
+				speed = PLAYER_MAX_SPEED;
+			lua_pushnumber(L, speed);
+		} else
+			lua_pushnumber(L, creature->getSpeed());
 	} else {
 		lua_pushnil(L);
 	}
