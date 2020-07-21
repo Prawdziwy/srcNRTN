@@ -2338,9 +2338,9 @@ ReturnValue Player::queryAdd(int32_t index, const Thing& thing, uint32_t count, 
 		}
 
 		case CONST_SLOT_AMMO: {
-			if ((slotPosition & SLOTP_AMMO) || g_config.getBoolean(ConfigManager::CLASSIC_EQUIPMENT_SLOTS)) {
+			//if ((slotPosition & SLOTP_AMMO) || g_config.getBoolean(ConfigManager::CLASSIC_EQUIPMENT_SLOTS)) {
 				ret = RETURNVALUE_NOERROR;
-			}
+			//}
 			break;
 		}
 
@@ -3213,6 +3213,14 @@ void Player::onAddCombatCondition(ConditionType_t type)
 
 		case CONDITION_DRUNK:
 			sendTextMessage(MESSAGE_STATUS_DEFAULT, "You are drunk.");
+			break;
+		
+		case CONDITION_STUN:
+			sendTextMessage(MESSAGE_STATUS_DEFAULT, "You are stunned.");
+			break;
+		
+		case CONDITION_IMMORTAL:
+			sendTextMessage(MESSAGE_STATUS_DEFAULT, "You are immortal.");
 			break;
 
 		case CONDITION_CURSED:
