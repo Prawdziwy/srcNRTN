@@ -527,8 +527,13 @@ CallBack* Combat::getCallback(CallBackParam_t key)
 
 void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatParams& params, CombatDamage* data)
 {
+	Creature* previousCaster = caster;
+	if(Creature* creatureMaster = caster->getMaster()) {
+		caster = creatureMaster;
+	}
 	assert(data);
 	CombatDamage damage = *data;
+	
 	if (g_game.combatBlockHit(damage, caster, target, params.blockedByShield, params.blockedByArmor, params.itemId != 0)) {
 		return;
 	}
@@ -619,6 +624,9 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 			}
 		}
 	}*/
+	if(previousCaster->getMaster()) {
+		damage.primary.value /= 3.333;
+	}
 
 	if (g_game.combatChangeHealth(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, &damage);
@@ -871,7 +879,11 @@ void Combat::doCombat(Creature* caster, Creature* target) const
 {
 	//target combat callback function
 	if (params.combatType != COMBAT_NONE) {
-		CombatDamage damage = getCombatDamage(caster, target);
+		CombatDamage damage;
+		if(Creature* creatureMaster = caster->getMaster()) 
+			damage = getCombatDamage(creatureMaster, target);
+		else
+			damage = getCombatDamage(caster, target);
 		if (damage.primary.type != COMBAT_MANADRAIN) {
 			doCombatHealth(caster, target, damage, params);
 		} else {
@@ -886,7 +898,11 @@ void Combat::doCombat(Creature* caster, const Position& position) const
 {
 	//area combat callback function
 	if (params.combatType != COMBAT_NONE) {
-		CombatDamage damage = getCombatDamage(caster, nullptr);
+		CombatDamage damage;
+		if(Creature* creatureMaster = caster->getMaster()) 
+			damage = getCombatDamage(creatureMaster, nullptr);
+		else
+			damage = getCombatDamage(caster, nullptr);
 		if (damage.primary.type != COMBAT_MANADRAIN) {
 			doCombatHealth(caster, position, area.get(), damage, params);
 		} else {
@@ -903,7 +919,6 @@ void Combat::doCombatHealth(Creature* caster, Creature* target, CombatDamage& da
 	if ((caster == target || canCombat) && params.impactEffect != CONST_ME_NONE) {
 		g_game.addMagicEffect(target->getPosition(), params.impactEffect);
 	}
-
 	if (canCombat) {
 		if (caster && params.distanceEffect != CONST_ANI_NONE) {
 			addDistanceEffect(caster, caster->getPosition(), target->getPosition(), params.distanceEffect);
