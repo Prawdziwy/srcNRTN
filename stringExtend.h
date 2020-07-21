@@ -32,12 +32,13 @@ constexpr char ext_digits[] =
 
 namespace std
 {
-	class stringExtended : public string
+	class stringExtended
 	{
 		public:
-			stringExtended() : string() { }
-			stringExtended(size_t reserveSize) : string() { this->reserve(reserveSize); }
+			stringExtended() = default;
+			stringExtended(size_t reserveSize) { outStr.reserve(reserveSize); }
 
+<<<<<<< HEAD:stringExtend.h
 			stringExtended& append(const string& str) {
 				string::append(str);
 				return (*this);
@@ -56,7 +57,63 @@ namespace std
 			}
 			stringExtended& append(size_t n, char c) {
 				string::append(n, c);
+=======
+			inline string::iterator begin() noexcept {
+				return outStr.begin();
+			}
+			inline string::iterator end() noexcept {
+				return outStr.end();
+			}
+			inline string::const_iterator begin() const noexcept {
+				return outStr.begin();
+			}
+			inline string::const_iterator end() const noexcept {
+				return outStr.end();
+			}
+			inline size_t length() const noexcept {
+				return outStr.length();
+			}
+			inline void clear() noexcept {
+				outStr.clear();
+			}
+			inline void reserve(size_t count) noexcept {
+				outStr.reserve(count);
+			}
+			inline void insert(string::const_iterator it, string::value_type element) {
+				outStr.insert(it, element);
+			}
+			inline void push_back(string::value_type element) {
+				outStr.push_back(element);
+			}
+			inline string substr(size_t pos, size_t len = std::string::npos) {
+				return outStr.substr(pos, len);
+			}
+			inline stringExtended& append(const string& str) {
+				outStr.append(str);
 				return (*this);
+			}
+			inline stringExtended& append(const string& str, size_t subpos, size_t sublen) {
+				outStr.append(str, subpos, sublen);
+				return (*this);
+			}
+			inline stringExtended& append(const char* str) {
+				outStr.append(str);
+				return (*this);
+			}
+			inline stringExtended& append(const char* str, size_t n) {
+				outStr.append(str, n);
+				return (*this);
+			}
+			inline stringExtended& append(size_t n, char c) {
+				outStr.append(n, c);
+>>>>>>> d8d2d21... Fix potential memory leak in extended classes:src/stringExtend.h
+				return (*this);
+			}
+			inline string::reference operator[](size_t index) {
+				return outStr.operator[](index);
+			}
+			inline string::const_reference operator[](size_t index) const {
+				return outStr.operator[](index);
 			}
 
 			stringExtended& appendInt(uint64_t value) {
@@ -73,15 +130,13 @@ namespace std
 				}
 				if (value < 10) {
 					*--ptrBuffer = static_cast<char>('0' + value);
-					string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-					return (*this);
+					return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 				}
 
 				uint32_t index = static_cast<uint32_t>(value * 2);
 				ptrBuffer -= 2;
 				memcpy(ptrBuffer, ext_digits + index, 2);
-				string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-				return (*this);
+				return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 			}
 
 			stringExtended& appendInt(int64_t value) {
@@ -107,8 +162,7 @@ namespace std
 					if (neg) {
 						*--ptrBuffer = '-';
 					}
-					string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-					return (*this);
+					return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 				}
 
 				uint32_t index = static_cast<uint32_t>(abs_value * 2);
@@ -117,8 +171,7 @@ namespace std
 				if (neg) {
 					*--ptrBuffer = '-';
 				}
-				string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-				return (*this);
+				return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 			}
 
 			stringExtended& appendInt(uint32_t value) { return appendInt(static_cast<uint64_t>(value)); }
@@ -143,16 +196,14 @@ namespace std
 				if (value < 10) {
 					*--ptrBuffer = static_cast<char>('0' + value);
 					*--ptrBuffer = '+';
-					string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-					return (*this);
+					return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 				}
 
 				uint32_t index = static_cast<uint32_t>(value * 2);
 				ptrBuffer -= 2;
 				memcpy(ptrBuffer, ext_digits + index, 2);
 				*--ptrBuffer = '+';
-				string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-				return (*this);
+				return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 			}
 
 			stringExtended& appendIntShowPos(int64_t value) {
@@ -180,8 +231,7 @@ namespace std
 					} else {
 						*--ptrBuffer = '+';
 					}
-					string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-					return (*this);
+					return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 				}
 
 				uint32_t index = static_cast<uint32_t>(abs_value * 2);
@@ -192,16 +242,52 @@ namespace std
 				} else {
 					*--ptrBuffer = '+';
 				}
-				string::append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
-				return (*this);
+				return append(ptrBuffer, std::distance(ptrBuffer, ptrBufferEnd));
 			}
 
+<<<<<<< HEAD:stringExtend.h
 			stringExtended& appendIntShowPos(uint32_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
 			stringExtended& appendIntShowPos(uint16_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
 			stringExtended& appendIntShowPos(uint8_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
 			stringExtended& appendIntShowPos(int32_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
 			stringExtended& appendIntShowPos(int16_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
 			stringExtended& appendIntShowPos(int8_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
+=======
+			inline stringExtended& appendIntShowPos(uint32_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
+			inline stringExtended& appendIntShowPos(uint16_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
+			inline stringExtended& appendIntShowPos(uint8_t value) { return appendIntShowPos(static_cast<uint64_t>(value)); }
+			inline stringExtended& appendIntShowPos(int32_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
+			inline stringExtended& appendIntShowPos(int16_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
+			inline stringExtended& appendIntShowPos(int8_t value) { return appendIntShowPos(static_cast<int64_t>(value)); }
+
+			inline stringExtended& operator<< (const string& str) { return append(str); }
+			inline stringExtended& operator<< (const char* str) { return append(str); }
+			inline stringExtended& operator<< (const char c) { return append(1, c); }
+
+			inline stringExtended& operator<< (uint64_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (uint32_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (uint16_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (uint8_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (int64_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (int32_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (int16_t value) { return appendInt(value); }
+			inline stringExtended& operator<< (int8_t value) { return appendInt(value); }
+
+			inline stringExtended& operator<<= (uint64_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (uint32_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (uint16_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (uint8_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (int64_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (int32_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (int16_t value) { return appendIntShowPos(value); }
+			inline stringExtended& operator<<= (int8_t value) { return appendIntShowPos(value); }
+
+			//Allow implicit conversion to std::string&
+			operator string&() { return outStr; }
+
+		private:
+			string outStr;
+>>>>>>> d8d2d21... Fix potential memory leak in extended classes:src/stringExtend.h
 	};
 };
 

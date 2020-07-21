@@ -75,6 +75,7 @@ enum ZoneType_t {
 	ZONE_NORMAL,
 };
 
+<<<<<<< HEAD:tile.h
 class TileItemVector : private ItemVector
 {
 	public:
@@ -127,22 +128,141 @@ class TileItemVector : private ItemVector
 		}
 		inline Item* getTopTopItem() const {
 			if (getTopItemCount() == 0) {
+=======
+class SpectatorVector
+{
+	public:
+		SpectatorVector() = default;
+
+		inline CreatureVector::iterator begin() noexcept { return specs.begin(); }
+		inline CreatureVector::iterator end() noexcept { return specs.end(); }
+		inline CreatureVector::const_iterator begin() const noexcept { return specs.begin(); }
+		inline CreatureVector::const_iterator end() const noexcept { return specs.end(); }
+		inline bool empty() const noexcept { return specs.empty(); }
+		inline size_t size() const noexcept { return specs.size(); }
+		inline size_t capacity() const noexcept { return specs.capacity(); }
+		inline void clear() noexcept { specs.clear(); }
+		inline void reserve(size_t count) { specs.reserve(count); }
+		inline void push_back(CreatureVector::value_type element) { return specs.push_back(element); }
+		inline void emplace_back(CreatureVector::value_type element) { return specs.emplace_back(element); }
+		inline CreatureVector::reference operator[](size_t index) { return specs.operator[](index); }
+		inline CreatureVector::const_reference operator[](size_t index) const { return specs.operator[](index); }
+
+		template<class inputIterator>
+		inline void insert(CreatureVector::const_iterator it, inputIterator first, inputIterator last) { specs.insert(it, first, last); }
+
+		void mergeSpectators(const SpectatorVector& spectators) {
+			size_t it = 0, end = spectators.size();
+			while (it < end) {
+				Creature* spectator = spectators[it];
+
+				size_t cit = 0, cend = size();
+				while (cit < cend) {
+					if (specs[cit] == spectator) {
+						goto Skip_Duplicate;
+					} else {
+						++cit;
+					}
+				}
+
+				specs.emplace_back(spectator);
+				Skip_Duplicate:
+				++it;
+			}
+		}
+
+		void erase(Creature* spectator) {
+			size_t it = 0, end = size();
+			while (it < end) {
+				if (specs[it] == spectator) {
+					specs[it] = specs.back();
+					specs.pop_back();
+					return;
+				} else {
+					++it;
+				}
+			}
+		}
+
+		//Allow implicit conversion to CreatureVector&
+		operator CreatureVector&() { return specs; }
+
+	private:
+		CreatureVector specs;
+};
+
+class TileItemVector
+{
+	public:
+		TileItemVector() = default;
+
+		inline ItemVector::iterator begin() noexcept { return vec.begin(); }
+		inline ItemVector::iterator end() noexcept { return vec.end(); }
+		inline ItemVector::const_iterator begin() const noexcept { return vec.begin(); }
+		inline ItemVector::const_iterator end() const noexcept { return vec.end(); }
+		inline ItemVector::reverse_iterator rbegin() noexcept { return vec.rbegin(); }
+		inline ItemVector::reverse_iterator rend() noexcept { return vec.rend(); }
+		inline ItemVector::const_reverse_iterator rbegin() const noexcept { return vec.rbegin(); }
+		inline ItemVector::const_reverse_iterator rend() const noexcept { return vec.rend(); }
+		inline size_t size() const noexcept { return vec.size(); }
+		inline void clear() noexcept { vec.clear(); }
+		inline void push_back(ItemVector::value_type element) { return vec.push_back(element); }
+		inline void emplace_back(ItemVector::value_type element) { return vec.emplace_back(element); }
+		inline ItemVector::iterator erase(ItemVector::const_iterator it) { return vec.erase(it); }
+		inline ItemVector::iterator erase(ItemVector::const_iterator first, ItemVector::const_iterator last) { return vec.erase(first, last); }
+		inline ItemVector::reference operator[](size_t index) { return vec.operator[](index); }
+		inline ItemVector::const_reference operator[](size_t index) const { return vec.operator[](index); }
+
+		template<class inputIterator>
+		inline void insert(ItemVector::const_iterator it, inputIterator first, inputIterator last) { vec.insert(it, first, last); }
+		inline void insert(ItemVector::const_iterator it, ItemVector::value_type element) { vec.insert(it, element); }
+
+		inline ItemVector::iterator getBeginDownItem() { return begin() + topItemCount; }
+		inline ItemVector::const_iterator getBeginDownItem() const { return begin() + topItemCount; }
+		inline ItemVector::iterator getEndDownItem() noexcept { return end(); }
+		inline ItemVector::const_iterator getEndDownItem() const noexcept { return end(); }
+		inline ItemVector::iterator getBeginTopItem() noexcept { return begin(); }
+		inline ItemVector::const_iterator getBeginTopItem() const noexcept { return begin(); }
+		inline ItemVector::iterator getEndTopItem() { return getBeginDownItem(); }
+		inline ItemVector::const_iterator getEndTopItem() const { return getBeginDownItem(); }
+
+		inline uint32_t getTopItemCount() const noexcept { return topItemCount; }
+		inline uint32_t getDownItemCount() const noexcept { return size() - topItemCount; }
+		inline void addTopItemCount(int32_t increment) noexcept { topItemCount += increment; }
+		inline Item* getTopTopItem() const noexcept {
+			if (topItemCount == 0) {
+>>>>>>> d8d2d21... Fix potential memory leak in extended classes:src/tile.h
 				return nullptr;
 			}
 			return *(getEndTopItem() - 1);
 		}
+<<<<<<< HEAD:tile.h
 		inline Item* getTopDownItem() const {
 			if (downItemCount == 0) {
+=======
+		inline Item* getTopDownItem() const noexcept {
+			if (getDownItemCount() == 0) {
+>>>>>>> d8d2d21... Fix potential memory leak in extended classes:src/tile.h
 				return nullptr;
 			}
 			return *getBeginDownItem();
 		}
+<<<<<<< HEAD:tile.h
 		void addDownItemCount(int32_t increment) {
 			downItemCount += increment;
 		}
 
 	private:
 		uint16_t downItemCount = 0;
+=======
+
+		//Allow implicit conversion to ItemVector&
+		operator ItemVector&() { return vec; }
+
+	private:
+		ItemVector vec;
+		uint16_t topItemCount = 0;
+>>>>>>> d8d2d21... Fix potential memory leak in extended classes:src/tile.h
 };
 
 class Tile : public Cylinder
