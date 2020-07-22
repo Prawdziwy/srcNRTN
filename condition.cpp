@@ -206,6 +206,7 @@ Condition* Condition::createCondition(ConditionId_t id, ConditionType_t type, in
 		case CONDITION_EXHAUST_HEAL:
 		case CONDITION_MUTED:
 		case CONDITION_MUTEDSPELL:
+		case CONDITION_BUFF_MELEE_DAMAGE:
 		case CONDITION_CHANNELMUTEDTICKS:
 		case CONDITION_YELLTICKS:
 		case CONDITION_PACIFIED:
